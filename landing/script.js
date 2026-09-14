@@ -68,7 +68,7 @@ form.addEventListener('submit', (event) => {
   }
 
   statusBox.textContent =
-    'Formularz działa w wersji demonstracyjnej. Po podłączeniu systemu zapisów zgłoszenie będzie wysyłane do UmiemTo.';
+    'Formularz działa w wersji demonstracyjnej. Po podłączeniu systemu zapisów zgłoszenie będzie wysyłane do serwisu Pyk! I umiem to.';
 
   statusBox.className = 'form-status show notice';
 
