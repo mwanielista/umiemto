@@ -33,6 +33,22 @@ BA is not SA; SA is not Architect; Architect is not Developer. BA and SA never g
 
 Missing or contradictory information becomes an open question with an owner and affected scope. Unresolved `BLOCKER` questions set analysis to `BLOCKED` and stop the dependent stage. Non-blocking questions require justification that uncertainty does not prevent progression. Assumptions cannot replace missing business decisions. Approval belongs to a designated human owner; agents must not fabricate it. A changed approved revision requires downstream impact review and renewed approval.
 
+### Architect input gate
+
+For new or changed business functionality, Architect must inspect the exact SA artifact, its `APPROVED` status and actual requirements-owner approval evidence for its revision and reviewed content. It must also verify the currently approved BA and that SA's `business_input.artifact_id`, `revision` and `content_digest` still identify that BA. Both artifacts must satisfy their documented contract and have no unresolved blockers; FR/NFR references must resolve to the consumed BA. Record SA/BA IDs, revisions, content identities and approval evidence in the handoff, and recheck the input snapshots before publishing architecture. Missing, stale, unapproved, blocked or unverifiable input stops dependent feature architecture; return the failed gate to the responsible analyst/owner.
+
+An explicitly requested baseline architecture creation/audit or maintenance of existing architecture, ADRs, governance or validation can inspect existing sources without approved BA/SA outputs. Report that scope and the missing approvals/artifacts. This exception does not authorize new business functionality, fabricated approval or representing the legacy SR baseline as approved SA.
+
+## Single-writer coordination
+
+One coordinator (the initiating agent, or the human directing independent sessions) assigns exactly one active writer to each shared artifact path before editing starts. Record the reservation in the task handoff/session: exact path, writer, output scope and the initial revision/content identity (or absence for a new file). This applies especially to `docs/requirements/business-analysis.yaml` and `docs/requirements/system-analysis.yaml`, and also to shared architecture/docs files. Direct single-agent work holds its own reservation; for multiple independent sessions, the human coordinates ownership. Do not claim to have checked sessions that are not visible.
+
+Do not launch competing BA or SA writers for the fixed output paths. Parallel readers and writers of disjoint assigned paths are permitted. If another writer owns a path, ownership is disputed or a known independent session may be writing the same path without established ownership, stop writes to that path and resolve the reservation with the coordinator. A child agent receives explicit ownership and must preserve other agents' edits. Release the reservation on completion/cancellation; before reassignment, verify that the previous writer has stopped.
+
+After reserving, capture the output's initial content snapshot and the exact upstream inputs. Immediately before each write, compare the current output against the initial snapshot (or the writer's last own write), and upstream inputs against the consumed snapshots. If either changed unexpectedly, stop, report the conflict and obtain a fresh reservation/input review; never overwrite or silently merge another writer's revision. Rerun applicable approval/traceability gates after upstream changes. Sequential BA→SA handoff requires BA to release its output and SA to pin the approved snapshot; reserve upstream BA against concurrent edits while SA consumes it.
+
+These are behavioral coordination rules, not filesystem locks, an atomic compare-and-write mechanism or an automated pipeline. `agents.max_concurrent_threads_per_session` permits concurrency but does not enforce ownership. Independent sessions need shared human coordination; snapshot rechecks reduce stale writes but do not remove all races. Automated locking is not implemented.
+
 ## Run BA then SA manually
 
 Read [requirements contracts](docs/requirements/README.md). Role prompts explicitly load the relevant documents rather than assuming nested instructions activate a role for a task started at repository root.

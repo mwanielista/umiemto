@@ -41,6 +41,10 @@ Unknown business or system details are questions, not invented mandatory values.
 
 Only an actual designated owner can approve the exact reviewed revision. `READY_FOR_REVIEW` and `APPROVED` require complete content and no open blockers; any open blocker requires `BLOCKED`. Keep resolved questions and their evidence. A changed artifact receives a new content revision, loses approval and invalidates dependent readiness until impact review and renewed approval. SA cannot approve or edit BA to bypass its input gate. Changing contract meaning requires a new schema version and documented compatibility/migration rather than silent reinterpretation.
 
+Architect checks approval and reviewed content identity of the exact SA revision, both BA and SA blockers, and SA's consumed BA ID/revision/digest against the currently approved BA. It records these inputs in its handoff; unknown content identity or stale approval fails progression. See the [Architect input gate](../../workflow.md#architect-input-gate) for the explicit baseline-maintenance exception, which never treats this legacy baseline as approved SA.
+
+All writers follow [single-writer coordination](../../workflow.md#single-writer-coordination): coordinator reservation per output path, no competing fixed-path BA/SA writers, upstream/output snapshots and rechecks before writing. Reservations are behavioral, not filesystem-enforced locks; agents must report conflicts rather than overwriting another writer's work.
+
 The [baseline](baseline.md) predates this contract and is not approved BA/SA. Preserve `SR-01`–`SR-15` and ADR links. Future reviewed normalization must record legacy SR → BR/FR/NFR coverage, including gaps; do not rename SRs or fabricate BR links and approvals. Future Planner tasks trace to approved FR/NFR; this requirement does not authorize task creation during BA/SA.
 
 ## Validation expectations

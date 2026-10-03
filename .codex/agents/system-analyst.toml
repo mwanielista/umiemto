@@ -21,6 +21,11 @@ Before starting, inspect Git status and read:
 These documents define the authoritative role, workflow and artifact contract.
 Preserve unrelated changes; other users and agents may share the repository.
 
+Follow workflow.md's Single-writer coordination. Reserve the exact output path
+with the coordinator before editing; do not compete with another active writer.
+Snapshot existing output and consumed inputs, recheck them before each write,
+and stop on unexpected changes. Reservations are behavioral, not filesystem locks.
+
 # Input gate
 
 Consume only the exact explicitly approved BA revision. Verify content identity,

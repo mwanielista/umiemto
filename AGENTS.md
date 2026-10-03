@@ -308,6 +308,8 @@ Neither role may invent missing requirements. Missing information becomes an ope
 
 Architect owns architecture and meaningful executable constraints. Planner is a future role that translates approved requirements and architecture into an implementation DAG; every implementation task must trace to FR/NFR IDs. Developers implement within these boundaries; the architecture reviewer independently reviews without modifying implementation. Role documentation does not register executable agents or automate the pipeline.
 
+For feature architecture, Architect explicitly checks SA approval/revision/content identity and its consumed BA ID/revision/digest against the currently approved BA, with no unresolved blockers. Missing or stale inputs stop dependent feature architecture. [workflow.md](workflow.md#architect-input-gate) defines this gate and the limited exception for explicitly requested baseline or existing-architecture maintenance.
+
 `docs/requirements/baseline.md` remains the existing architectural subset with stable `SR-01`–`SR-15` references. It is not an approved BA/SA artifact. Preserve those references; migrate through reviewed traceability rather than relabeling them or inventing approvals.
 
 ---
@@ -1041,6 +1043,8 @@ Before modifying code:
 5. understand whether the task is architecturally significant.
 
 Preserve unrelated changes made by other users or agents.
+
+Follow [single-writer coordination](workflow.md#single-writer-coordination) for shared artifacts: the coordinator reserves one writer per path, competing BA/SA writers may not use the fixed output paths, and writers recheck upstream/output snapshots before writing. Unexpected changes or disputed ownership stop writes pending coordination. These are behavioral reservations, not filesystem locks.
 
 Do not perform unrelated refactoring as part of a focused task.
 
