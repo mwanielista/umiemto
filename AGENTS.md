@@ -298,6 +298,18 @@ docs/requirements/
 
 Existing business documents remain valid sources until their relevant requirements are migrated or superseded.
 
+## Analysis roles and progression gates
+
+The analysis workflow is documented in [workflow.md](workflow.md), with role contracts and artifact specifications in [docs/requirements/README.md](docs/requirements/README.md).
+
+Business Analyst and System Analyst are separate roles. BA produces business requirements (`BR-xxx`) without architecture, technology choices or implementation tasks. SA consumes an explicitly approved BA revision and produces system requirements (`FR-xxx`, `NFR-xxx`), each tracing to one or more existing BR IDs. SA must not change business requirements, choose implementation technologies, design final architecture or create implementation tasks.
+
+Neither role may invent missing requirements. Missing information becomes an open question; unresolved `BLOCKER` questions set analysis status to `BLOCKED` and stop dependent progression. Agents must not fabricate approval. A changed upstream revision requires downstream impact review and renewed approval before progression.
+
+Architect owns architecture and meaningful executable constraints. Planner is a future role that translates approved requirements and architecture into an implementation DAG; every implementation task must trace to FR/NFR IDs. Developers implement within these boundaries; the architecture reviewer independently reviews without modifying implementation. Role documentation does not register executable agents or automate the pipeline.
+
+`docs/requirements/baseline.md` remains the existing architectural subset with stable `SR-01`–`SR-15` references. It is not an approved BA/SA artifact. Preserve those references; migrate through reviewed traceability rather than relabeling them or inventing approvals.
+
 ---
 
 # 7. Architect Agent
@@ -621,15 +633,19 @@ If an accepted architectural decision changes, create a new ADR that supersedes 
 For architecturally significant work, follow this sequence:
 
 ```text
-business requirement
+business input
         ↓
-system requirement
+business analysis and approval
+        ↓
+system analysis and approval
         ↓
 architecture analysis
         ↓
 architecture decision
         ↓
 implementation boundaries
+        ↓
+implementation plan (future Planner)
         ↓
 implementation
         ↓
@@ -1179,11 +1195,15 @@ Implementation agents must not silently redefine either.
 The expected workflow is:
 
 ```text
-Business Requirements
+Business Input
         ↓
-System Analysis
+Business Analyst → Approved Business Requirements
         ↓
-Architecture
+System Analyst → Approved System Requirements
+        ↓
+Architect → Architecture and Constraints
+        ↓
+Planner → Implementation DAG (future role)
         ↓
 Implementation
         ↓

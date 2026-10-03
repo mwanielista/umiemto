@@ -23,6 +23,7 @@ Architecture decisions are Accepted when fixed by repository constraints or suff
 | View | Purpose |
 | --- | --- |
 | [Normalized requirements](../requirements/baseline.md) | Traceable requirements and unresolved business inputs |
+| [Analysis contracts](../requirements/README.md), [workflow](../../workflow.md) | Separate BA/SA responsibilities, revision/approval gates and future BR/FR/NFR traceability; existing SR baseline is not approved BA/SA |
 | [System context](system-context.md) | Actors, external systems and trust boundaries |
 | [Containers](containers.md) | Actual landing and intended runtime/deployment |
 | [Components](components.md) | Capabilities, dependency direction and orchestration |

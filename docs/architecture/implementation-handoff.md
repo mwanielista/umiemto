@@ -20,6 +20,8 @@ Implement the capability-oriented modular monolith defined by [ADRs](README.md#d
 
 ## Suggested sequence and validation gates
 
+For new feature work, first follow the [BA→SA approval gates](../../workflow.md) and [analysis contracts](../requirements/README.md). This existing sequence is architectural guidance based on the legacy SR subset, not an approved implementation backlog. A future Planner must trace tasks to reviewed FR/NFR and architecture; BA/SA do not create those tasks. Preserve Accepted ADRs and review architectural impact if normalized requirements conflict with them.
+
 1. Resolve credential authority, parent-child login/recovery, account lifecycle and ADR-0006. Choose actual compatible supported toolchain and major dependencies using official then-current documentation.
 2. Bootstrap only when requested: real build wrappers/scripts, migration tool, local/dev topology and architecture checks. Keep target documentation aligned with actual new paths/commands.
 3. Implement a scoped end-to-end parent/child/catalog/group workflow with concrete program versions and access rules; prove resource isolation and ownership before adding commerce.

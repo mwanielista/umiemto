@@ -2,6 +2,8 @@
 
 Status: normalized architectural subset, 2026-10-03. No capability below is implemented by this document.
 
+This index predates the [BA/SA contracts](README.md) and is not an approved business or system analysis artifact. Preserve `SR-01`–`SR-15` for existing architecture/ADR traceability. Future normalization requires source-backed BR/FR/NFR, explicit owner approval and a reviewed coverage mapping; no approval or BR link is inferred from these SR entries. The questions below remain unresolved inputs and must be assessed against the new stage gates before dependent work.
+
 Sources remain authoritative: [AGENTS.md](../../AGENTS.md), [business plan](../biznesplan-platforma-kursy-dla-dzieci.md) and [educational program template](../szablon-programu-edukacyjnego-modul-4-zajecia.md). This index adds stable references and architectural acceptance criteria; it does not supersede the sources or migrate all business requirements. Where the plan lists alternatives or examples, they remain configuration or open decisions. AGENTS.md resolves the plan's consultation priority ambiguity by including limited asynchronous consultations in MVP.
 
 | ID | Requirement and acceptance boundary | Source | Architecture |
