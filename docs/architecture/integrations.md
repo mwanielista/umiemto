@@ -1,0 +1,24 @@
+# Integration boundaries
+
+Providers are not selected and no integration is implemented. Each adapter implements an owner-defined port; domain/public models are provider-neutral. [ADR-0003](decisions/0003-durable-effects-and-payments.md) governs durable work and [ADR-0005](decisions/0005-runtime-and-api-boundary.md) governs deployment/provider boundaries.
+
+| Integration / owner | Purpose and minimum data | Authentication / trust | Failure, retries, reconciliation |
+| --- | --- | --- | --- |
+| Payments / commerce | Hosted checkout, settled status/refunds; opaque order reference, amount/currency, necessary parent billing data; no card handling by platform | Secret credentials; provider-defined signed callback or authenticated server verification; validate merchant/payment/order/amount/currency | Bounded connect/read/total timeouts; creation/refund idempotency keys; uncertain outcomes checked before retry; webhook duplicates deduped and state transitions monotonic; scheduled settlement reconciliation |
+| Video / lessons | Scheduled meeting/join reference; minimal group/teacher display data | Administrator-entered approved link initially or credentials for a provider API; authorize each disclosure of join information | Bound calls if API exists; retries only when safe; teacher/operator can repair link with audit; clear unavailable lesson status; meeting not publicly listed |
+| Email / notifications | Transactional email, parent recipient, template reference and minimal variables | Provider credentials from secrets; validated callbacks if used | Durable intent, bounded retry/backoff and maximum attempts; failed queue visible to operators; delivery tracking; at-least-once delivery may cause rare duplicates unless provider supports idempotency |
+| S3 / files | Private materials and attachments, opaque object key/size/type metadata | Least-privilege server credentials, private bucket, encryption; authorized short-lived operations | Bounded transfers, checksum/type/size checks and scan quarantine; upload intent expiry; reconcile orphan objects and metadata; retry idempotent object operation by generated key |
+| Malware scanner / files | Quarantined attachment bytes and result, no unnecessary profile data | Restricted trusted execution/service identity | Fail closed while scan unavailable; bounded queued retries/status and alert; scanner method remains open, not a mandatory extra distributed service |
+| Credential authority / identity | Verified subject, account assurance/MFA and necessary account metadata | Pending ADR-0006; if external, validate issuer/audience/signature/flow and map to local authority | Fail closed on authentication verification failure; session recovery and provider outage behavior specified before implementation |
+
+## Durable delivery rules
+
+Use owner-local PostgreSQL delivery records and in-process scheduled handlers. Record outgoing intent in the same transaction as the producing domain change. Claim with a lease/row locking, record attempts/next retry, recover abandoned claims, and expose bounded failed status for operator replay. Do not hold business transactions open over provider calls. A lease/claim alone does not prove delivery: acknowledge only after transactional local effects or durable provider outcome. Retry and manual replay use the same idempotency keys.
+
+For payment confirmation, unique verified callback evidence plus payment state prevents duplicate settlement; order-line effect keys prevent duplicate enrollment/retake entitlement. Fulfillment acknowledgement and notification intent creation share the local transaction, so crash recovery does not lose the email intent. Provider calls use their idempotency capability or query before retry; local exactly-once business effects do not imply exactly-once external delivery.
+
+Polling interval, timeout values, retry budget and alert thresholds must be chosen from provider limits and approved operational goals during integration design. They are not guessed globally. Each integration needs sandbox contract tests for authentication/invalid callbacks/timeouts/retries/reconciliation, redacted correlation-based logs and counters. Operator replay requires authorization, reason and audit. No broker, Redis, event sourcing or distributed transaction is introduced.
+
+## Payment edge cases to resolve before coding
+
+Seat reservation expiry versus delayed settlement, split/duplicate payments, partial refund/cancellation, failed group formation and retake refunds need concrete product policies. Preserve paid evidence and surface recoverable fulfillment mismatch; do not invent auto-refund or unpaid access. Reconciliation must distinguish confirmed paid state from a pending/failed callback and compare settled amounts/currency against immutable order snapshots.

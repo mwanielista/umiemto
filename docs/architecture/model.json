@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "state": "target",
+  "rootPackage": "pl.eszkola",
+  "publicContractPackage": "api",
+  "privatePackages": [
+    "application",
+    "domain",
+    "infrastructure",
+    "interfaces"
+  ],
+  "dependencyMeaning": "Allowed compile-time imports of provider public contracts; not required edges.",
+  "modules": [
+    {
+      "id": "audit",
+      "allowedDependencies": [],
+      "ownedEntities": [
+        "AuditEvent"
+      ]
+    },
+    {
+      "id": "files",
+      "allowedDependencies": [],
+      "ownedEntities": [
+        "FileObject",
+        "FileScan"
+      ]
+    },
+    {
+      "id": "identity",
+      "allowedDependencies": [
+        "audit"
+      ],
+      "ownedEntities": [
+        "ActorAccount",
+        "ParentProfile",
+        "ChildProfile",
+        "TeacherProfile",
+        "GuardianRelationship",
+        "ConsentRecord",
+        "RoleGrant",
+        "AuthenticationState"
+      ]
+    },
+    {
+      "id": "catalog",
+      "allowedDependencies": [
+        "identity",
+        "files",
+        "audit"
+      ],
+      "ownedEntities": [
+        "Subject",
+        "AgeBand",
+        "LearningPath",
+        "ModuleDefinition",
+        "ProgramVersion",
+        "LessonPlan",
+        "LearningOutcome",
+        "AssessmentPolicyVersion",
+        "QuestionVersion",
+        "GradingCriteriaVersion",
+        "ProgramMaterial"
+      ]
+    },
+    {
+      "id": "groups",
+      "allowedDependencies": [
+        "identity",
+        "catalog",
+        "audit"
+      ],
+      "ownedEntities": [
+        "ScheduledGroup",
+        "TeacherAssignment",
+        "SeatReservation",
+        "Enrollment"
+      ]
+    },
+    {
+      "id": "lessons",
+      "allowedDependencies": [
+        "identity",
+        "catalog",
+        "groups",
+        "files",
+        "audit"
+      ],
+      "ownedEntities": [
+        "LessonOccurrence",
+        "MeetingReference",
+        "Attendance",
+        "LessonMaterial"
+      ]
+    },
+    {
+      "id": "assignments",
+      "allowedDependencies": [
+        "identity",
+        "catalog",
+        "groups",
+        "files",
+        "audit"
+      ],
+      "ownedEntities": [
+        "Assignment",
+        "Submission",
+        "PracticeAttempt",
+        "HintUsage",
+        "AssignmentFeedback"
+      ]
+    },
+    {
+      "id": "assessments",
+      "allowedDependencies": [
+        "identity",
+        "catalog",
+        "groups",
+        "assignments",
+        "files",
+        "audit"
+      ],
+      "ownedEntities": [
+        "DiagnosticAttempt",
+        "ExamAttempt",
+        "AttemptQuestionSnapshot",
+        "GradingDecision",
+        "ModuleCompletion",
+        "ProgressionOverride"
+      ]
+    },
+    {
+      "id": "consultations",
+      "allowedDependencies": [
+        "identity",
+        "groups",
+        "lessons",
+        "files",
+        "audit"
+      ],
+      "ownedEntities": [
+        "ConsultationThread",
+        "ConsultationMessage",
+        "ConsultationPolicyVersion"
+      ]
+    },
+    {
+      "id": "commerce",
+      "allowedDependencies": [
+        "identity",
+        "catalog",
+        "audit"
+      ],
+      "ownedEntities": [
+        "PriceConfiguration",
+        "Order",
+        "OrderLineSnapshot",
+        "Payment",
+        "Refund",
+        "RetakeEntitlement",
+        "ProviderCallback",
+        "CommerceDelivery"
+      ]
+    },
+    {
+      "id": "reporting",
+      "allowedDependencies": [
+        "identity",
+        "catalog",
+        "groups",
+        "lessons",
+        "assignments",
+        "assessments",
+        "consultations",
+        "audit"
+      ],
+      "ownedEntities": [
+        "ProgressReportSnapshot"
+      ]
+    },
+    {
+      "id": "notifications",
+      "allowedDependencies": [
+        "audit"
+      ],
+      "ownedEntities": [
+        "NotificationIntent",
+        "EmailDelivery"
+      ]
+    },
+    {
+      "id": "workflows",
+      "allowedDependencies": [
+        "identity",
+        "catalog",
+        "groups",
+        "lessons",
+        "assignments",
+        "assessments",
+        "consultations",
+        "commerce",
+        "reporting",
+        "files",
+        "notifications",
+        "audit"
+      ],
+      "ownedEntities": []
+    }
+  ]
+}
