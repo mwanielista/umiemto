@@ -31,7 +31,7 @@ The following files contain the current product and business context.
 
 ## Business and product requirements
 
-`biznesplan-platforma-kursy-dla-dzieci.md`
+`docs/biznesplan-platforma-kursy-dla-dzieci.md`
 
 Contains the product concept, business processes, roles, expected architecture, MVP priorities, and major business assumptions.
 
@@ -39,7 +39,7 @@ Read the relevant sections before implementing or designing functionality relate
 
 ## Educational program model
 
-`szablon-programu-edukacyjnego-modul-4-zajecia.md`
+`docs/szablon-programu-edukacyjnego-modul-4-zajecia.md`
 
 Defines the expected structure of:
 
@@ -63,9 +63,16 @@ It is served through Nginx.
 
 ## Current deployment
 
-`docker-compose.yml`
+`landing/docker-compose.yml`
 
 Currently starts only the landing page on port `8080`.
+
+Run it from the repository root with `--project-directory .` because its build context is `./landing`.
+There is currently no root-level Compose file.
+
+The baseline target architecture and its implementation gaps are documented in
+`docs/architecture/README.md`; implementation requirements are indexed in
+`docs/requirements/baseline.md`.
 
 Spring Boot backend and Angular frontend do not yet exist.
 
@@ -1075,13 +1082,13 @@ Do not treat commands that do not yet exist as valid project commands.
 Currently, landing configuration can be checked with:
 
 ```bash
-docker compose config
+docker compose --project-directory . -f landing/docker-compose.yml config
 ```
 
 and started locally using:
 
 ```bash
-docker compose up --build -d
+docker compose --project-directory . -f landing/docker-compose.yml up --build -d
 ```
 
 After backend creation, add and commit a Maven or Gradle wrapper.

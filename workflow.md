@@ -22,4 +22,4 @@ lub
       ↓
 implementer poprawia
       ↓
-Architect Reviewer ponownie
+Architect Reviewer ponowniegit
