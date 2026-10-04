@@ -39,6 +39,52 @@ For new or changed business functionality, Architect must inspect the exact SA a
 
 An explicitly requested baseline architecture creation/audit or maintenance of existing architecture, ADRs, governance or validation can inspect existing sources without approved BA/SA outputs. Report that scope and the missing approvals/artifacts. This exception does not authorize new business functionality, fabricated approval or representing the legacy SR baseline as approved SA.
 
+## Branches and worktrees
+
+One independent feature uses one branch, normally `feature/<short-name>`. Focused
+fixes and documentation use `fix/<short-name>` and `docs/<short-name>`. `main` is
+the integration branch; do not implement features directly on it. BA, SA,
+architecture, implementation and tests may progress sequentially on the same
+feature branch, retaining the approval and blocker gates above. A branch does
+not authorize bypassing a stage or expanding the requested scope.
+
+For concurrent independent tasks, assign a distinct branch and Git worktree to
+each task. All agents collaborating on one feature use its assigned worktree
+and explicit file ownership; reviewers read that same branch without editing it.
+A worktree isolates checked-out files, not shared Git references or final merge
+conflicts. Never checkout another branch in a directory used by active agents.
+
+Before edits, inspect `git status --short`, `git branch --show-current` and
+`git worktree list`. The coordinator records task scope, base branch/commit,
+feature branch, absolute worktree path and assigned writers in the handoff.
+Preserve existing dirty changes; do not reset, discard, automatically stash or
+move them into a feature without coordinating with their owner. Choose a fresh
+branch/worktree when the current checkout belongs to another task.
+
+Example from the repository root, after selecting the intended base and an
+available branch/directory (use a writable location permitted by the environment):
+
+```bash
+git worktree add -b feature/parent-registration ../eszkola-parent-registration main
+```
+
+This is a future feature example, not a command executed or a feature authorized
+by this documentation change. Check repository instructions in the new worktree
+and pass its path explicitly to every delegated agent.
+
+Before integration, synchronize with the current target branch while preserving
+others' work, resolve conflicts deliberately, and recheck requirements, approval
+identities, ADR consistency and affected tests. Record the exact commit reviewed.
+Merge to `main` only after applicable BA/SA approvals, tests, architecture checks
+and independent review have passed; disclose any remaining verification gaps.
+Further changes invalidate review of their affected scope. If integration changes
+reviewed content, verify/review the resulting content before merge. Branches and
+worktrees do not provide automated branch protection or CI gates.
+
+After integration, release file reservations. Remove a task worktree or branch
+only when no agent uses it and no uncommitted or unmerged work remains; do not
+force cleanup of another user's work.
+
 ## Single-writer coordination
 
 One coordinator (the initiating agent, or the human directing independent sessions) assigns exactly one active writer to each shared artifact path before editing starts. Record the reservation in the task handoff/session: exact path, writer, output scope and the initial revision/content identity (or absence for a new file). This applies especially to `docs/requirements/business-analysis.yaml` and `docs/requirements/system-analysis.yaml`, and also to shared architecture/docs files. Direct single-agent work holds its own reservation; for multiple independent sessions, the human coordinates ownership. Do not claim to have checked sessions that are not visible.
@@ -48,6 +94,14 @@ Do not launch competing BA or SA writers for the fixed output paths. Parallel re
 After reserving, capture the output's initial content snapshot and the exact upstream inputs. Immediately before each write, compare the current output against the initial snapshot (or the writer's last own write), and upstream inputs against the consumed snapshots. If either changed unexpectedly, stop, report the conflict and obtain a fresh reservation/input review; never overwrite or silently merge another writer's revision. Rerun applicable approval/traceability gates after upstream changes. Sequential BA→SA handoff requires BA to release its output and SA to pin the approved snapshot; reserve upstream BA against concurrent edits while SA consumes it.
 
 These are behavioral coordination rules, not filesystem locks, an atomic compare-and-write mechanism or an automated pipeline. `agents.max_concurrent_threads_per_session` permits concurrency but does not enforce ownership. Independent sessions need shared human coordination; snapshot rechecks reduce stale writes but do not remove all races. Automated locking is not implemented.
+
+Reservations identify both the worktree and relative artifact path. Separate
+feature worktrees may contain independent drafts at the same relative BA/SA
+paths, but never have competing writers to the same checked-out file. Shared
+authoritative requirements and ADR changes still need coordinator review before
+integration: do not replace one feature's analysis with another's or concatenate
+artifacts blindly. Preserve IDs, provenance and approved scope; reconcile coverage
+and repeat affected approval/traceability gates when combined content changes.
 
 ## Run BA then SA manually
 

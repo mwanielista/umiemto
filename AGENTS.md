@@ -1044,6 +1044,26 @@ Before modifying code:
 
 Preserve unrelated changes made by other users or agents.
 
+## Branches and worktrees
+
+Develop each independent feature on its own branch, normally `feature/<short-name>`;
+use `fix/<short-name>` or `docs/<short-name>` for focused fixes or documentation work.
+Do not develop features directly on `main`. Keep the feature's BA, SA, architecture,
+implementation and verification together on that branch, following their stage gates.
+
+Use a separate Git worktree for each concurrently active independent task. Branches
+alone do not isolate agents sharing one working directory. Inspect the current branch,
+worktree and Git status before edits; never switch a shared directory's branch while
+another agent is using it. Preserve dirty work and coordinate its disposition before
+changing checkout. Delegate exact branch, worktree path and file ownership to agents.
+
+Review the same branch and commit that will be integrated. Merge to `main` only after
+the applicable requirement approvals, tests, architecture checks and independent
+review pass. Changes after review require verification of the affected scope again.
+Worktree isolation does not resolve competing edits to shared requirements or ADRs;
+coordinate integration and recheck approval/content identity after conflict resolution.
+Follow [branch and worktree workflow](workflow.md#branches-and-worktrees).
+
 Follow [single-writer coordination](workflow.md#single-writer-coordination) for shared artifacts: the coordinator reserves one writer per path, competing BA/SA writers may not use the fixed output paths, and writers recheck upstream/output snapshots before writing. Unexpected changes or disputed ownership stop writes pending coordination. These are behavioral reservations, not filesystem locks.
 
 Do not perform unrelated refactoring as part of a focused task.
