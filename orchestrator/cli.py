@@ -13,6 +13,7 @@ from .gates import ba_gate, sa_gate
 from .models import Stage
 from .pipeline import BA_PATH, SA_PATH, Pipeline
 from .git_utils import inspect_git
+from .progress import ConsoleProgress
 
 
 def repository_root(start):
@@ -149,7 +150,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         root = repository_root(args.root)
-        pipeline = Pipeline(root, CodexAgentRunner(root))
+        pipeline = Pipeline(root, CodexAgentRunner(root, progress=ConsoleProgress()))
         if args.command == "approve":
             if not sys.stdin.isatty():
                 raise PipelineError("Human approval requires an interactive terminal; no --yes or piped approval")
@@ -170,6 +171,9 @@ def main(argv=None):
                 for run in sorted((pipeline.store.directory / "runs").glob("*/events.jsonl")):
                     print(run.read_text())
         return 0
+    except KeyboardInterrupt:
+        print("\nPrzerwano factory. Zapisany RUNNING wymaga sprawdzenia; factory resume zgłosi HUMAN_REQUIRED. Po sprawdzeniu użyj factory reset i factory analyze.", file=sys.stderr)
+        return 130
     except (PipelineError, OSError, ValueError, TypeError, KeyError, EOFError) as error:
         print(str(error), file=sys.stderr)
         return 1

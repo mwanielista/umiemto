@@ -60,7 +60,17 @@ factory analyze
 factory status
 ```
 
-`analyze` tworzy nowy przebieg i uruchamia Business Analyst. Agent przygotowuje propozycję, którą kod orkiestratora sprawdza przed zapisaniem do:
+`analyze` tworzy nowy przebieg i uruchamia Business Analyst. Agent przygotowuje propozycję, którą kod orkiestratora sprawdza przed zapisaniem.
+
+Podczas wywołania agenta terminal co około dwie sekundy odświeża nazwę etapu, czas trwania i limit czasu (domyślnie 900 sekund). Przykład:
+
+```text
+[factory] BA — analiza biznesowa | czas 00:24 | limit 900s | Codex uruchomiony; oczekiwanie na wynik
+```
+
+W terminalu aktualizowana jest jedna linia; po przekierowaniu outputu kolejne aktualizacje są osobnymi liniami na stderr. Licznik potwierdza trwanie wywołania, nie procent ukończenia ani postęp myślenia modelu. Treści odpowiedzi i surowe logi Codex pozostają ukryte. `Ctrl+C` kończy proces Codex i jego grupę subprocessów; CLI wypisuje instrukcję odzyskania przerwanego przebiegu.
+
+Wynik BA zostaje zapisany do:
 
 ```text
 docs/requirements/business-analysis.yaml

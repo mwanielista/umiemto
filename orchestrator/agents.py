@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 import json
+import os
+import signal
 import subprocess
 import tempfile
+import time
 import tomllib
 from pathlib import Path
 
@@ -64,9 +67,55 @@ class CodexAgentRunner(AgentRunner):
     No custom-agent selector or LLM coordinator is needed: Python selects roles.
     User configuration/MCP and delegation are disabled; CLI authentication remains.
     """
-    def __init__(self, root, timeout=900):
+    def __init__(self, root, timeout=900, progress=None, progress_interval=2):
         self.root = Path(root).resolve()
         self.timeout = timeout
+        self.progress = progress
+        self.progress_interval = progress_interval
+
+    def _execute(self, command, prompt, agent):
+        started = time.monotonic()
+        def report(status="running"):
+            if self.progress:
+                self.progress(agent, time.monotonic() - started, self.timeout, status)
+
+        # Separate process group lets Ctrl+C/timeout stop Codex and its subprocesses.
+        process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE, text=True, cwd=self.root,
+                                   start_new_session=True)
+        try:
+            report()
+            first = True
+            while True:
+                remaining = self.timeout - (time.monotonic() - started)
+                if remaining <= 0:
+                    raise subprocess.TimeoutExpired(command, self.timeout)
+                try:
+                    stdout, stderr = process.communicate(input=prompt if first else None,
+                                                         timeout=min(self.progress_interval, remaining))
+                    report("finished" if process.returncode == 0 else "failed")
+                    return subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
+                except subprocess.TimeoutExpired:
+                    first = False
+                    if time.monotonic() - started >= self.timeout:
+                        raise
+                    report()
+        except BaseException as error:
+            # Never leave a paid inference or shell child running after cancellation.
+            try:
+                os.killpg(process.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            try:
+                process.communicate(timeout=3)
+            except subprocess.TimeoutExpired:
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                process.communicate()
+            report("interrupted" if isinstance(error, KeyboardInterrupt) else "timeout" if isinstance(error, subprocess.TimeoutExpired) else "failed")
+            raise
 
     def run(self, agent, task, context=None):
         if agent not in ROLE_FILES:
@@ -98,8 +147,7 @@ as mandatory in addition to embedded metadata. No tool may write to the repo.
                 command[2:2] = ["-c", "model_reasoning_effort=" + json.dumps(definition["model_reasoning_effort"])]
             prompt = task + "\nExact controller context:\n" + json.dumps(context or {}, ensure_ascii=False)
             try:
-                process = subprocess.run(command, input=prompt, capture_output=True, text=True,
-                                         timeout=self.timeout, cwd=self.root)
+                process = self._execute(command, prompt, agent)
             except (OSError, subprocess.TimeoutExpired) as error:
                 raise AgentExecutionError(f"Codex {agent} unavailable or timed out; inspect local Codex authentication/sandbox") from error
             if process.returncode:
