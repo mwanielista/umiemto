@@ -1,0 +1,40 @@
+version: 1
+pipeline:
+  name: requirements-to-architecture
+business_sources:
+  - docs/biznesplan-platforma-kursy-dla-dzieci.md
+  - docs/szablon-programu-edukacyjnego-modul-4-zajecia.md
+  - AGENTS.md
+stages:
+  business_analysis:
+    agent: business-analyst
+    artifact: docs/requirements/business-analysis.yaml
+    gate: ba_gate
+    next: ba_approval
+  ba_approval:
+    next: system_analysis
+  system_analysis:
+    agent: system-analyst
+    artifact: docs/requirements/system-analysis.yaml
+    gate: sa_gate
+    next: sa_approval
+  sa_approval:
+    next: architecture
+  architecture:
+    agent: architect
+    next: architecture_review
+  architecture_review:
+    agent: architect-reviewer
+    retry:
+      stage: arch_fix
+      max_attempts: 3
+    next: architecture_validation
+  arch_fix:
+    agent: architect
+    next: architecture_review
+  architecture_validation:
+    type: command
+    commands:
+      - [python, docs/architecture/validation/check_baseline.py]
+      - [python, docs/architecture/validation/check_baseline.py, --self-test]
+    next: done

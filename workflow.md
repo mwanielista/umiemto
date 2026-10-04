@@ -1,6 +1,6 @@
 # Requirements-to-implementation workflow
 
-[AGENTS.md](AGENTS.md) is the repository constitution. This workflow uses the current directory structure and defines manual stage gates; it does not register agents or provide an automated pipeline.
+[AGENTS.md](AGENTS.md) is the repository constitution. This workflow defines stage ownership and approval rules; the [factory](docs/orchestrator.md) now automates the analysis-to-architecture subset using deterministic gates. It does not register agents or automate implementation.
 
 ```text
 Business input
@@ -93,7 +93,7 @@ Do not launch competing BA or SA writers for the fixed output paths. Parallel re
 
 After reserving, capture the output's initial content snapshot and the exact upstream inputs. Immediately before each write, compare the current output against the initial snapshot (or the writer's last own write), and upstream inputs against the consumed snapshots. If either changed unexpectedly, stop, report the conflict and obtain a fresh reservation/input review; never overwrite or silently merge another writer's revision. Rerun applicable approval/traceability gates after upstream changes. Sequential BA→SA handoff requires BA to release its output and SA to pin the approved snapshot; reserve upstream BA against concurrent edits while SA consumes it.
 
-These are behavioral coordination rules, not filesystem locks, an atomic compare-and-write mechanism or an automated pipeline. `agents.max_concurrent_threads_per_session` permits concurrency but does not enforce ownership. Independent sessions need shared human coordination; snapshot rechecks reduce stale writes but do not remove all races. Automated locking is not implemented.
+These are behavioral coordination rules, not filesystem locks or an atomic compare-and-write mechanism. `agents.max_concurrent_threads_per_session` permits concurrency but does not enforce ownership. Independent sessions need shared human coordination; snapshot rechecks reduce stale writes but do not remove all races. Factory additionally locks its own per-worktree controller instances; arbitrary editors/sessions remain subject to coordination.
 
 Reservations identify both the worktree and relative artifact path. Separate
 feature worktrees may contain independent drafts at the same relative BA/SA
@@ -128,4 +128,4 @@ Trace every FR/NFR to BR IDs. Do not change BA, choose technologies,
 design final architecture, create tasks or approve your own output.
 ```
 
-The current [baseline](docs/requirements/baseline.md) is an architectural subset with stable `SR-01`–`SR-15` references, not approved BA/SA output. Preserve its references and Accepted ADRs. Future normalization requires reviewed coverage mapping to BR/FR/NFR, not inferred approvals. The [existing checker](docs/architecture/README.md#checks-available-now) verifies target model/document coherence; BA/SA contract and approval checks remain manual until an executable validator exists.
+The current [baseline](docs/requirements/baseline.md) is an architectural subset with stable `SR-01`–`SR-15` references, not approved BA/SA output. Preserve its references and Accepted ADRs. Future normalization requires reviewed coverage mapping to BR/FR/NFR, not inferred approvals. The [existing checker](docs/architecture/README.md#checks-available-now) verifies target model/document coherence; factory implements BA/SA structural/approval gates, while human semantic review and explicit approval remain mandatory.
