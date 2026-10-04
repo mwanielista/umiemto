@@ -47,6 +47,9 @@ Architecture decisions are Accepted when fixed by repository constraints or suff
 | [0004](decisions/0004-resource-authorization.md) | Accepted | Role plus resource authorization, scoped privileged access and audit |
 | [0005](decisions/0005-runtime-and-api-boundary.md) | Accepted | Same-origin API, single-server Compose, provider adapters and recovery boundaries |
 | [0006](decisions/0006-authentication-options.md) | Proposed | Same-origin server session recommendation; credential authority unresolved |
+| [0007](decisions/0007-deterministic-analysis-orchestration.md) | Accepted | Deterministic repository orchestration and controller-owned approval/write boundaries |
+
+The [analysis factory](../orchestrator.md) automates BA/SA contract/approval gates through architecture review and validation. It is repository tooling, separate from the product runtime; installation does not approve requirements.
 
 ## Checks available now
 

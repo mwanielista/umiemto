@@ -17,6 +17,13 @@ Before modifying this repository, all agents must follow the rules described her
 
 This file does not start or configure the application itself. Its purpose is to preserve consistency across work performed by multiple agents over time.
 
+Repository analysis automation is documented in [docs/orchestrator.md](docs/orchestrator.md).
+The Python `orchestrator/` package and `config/pipeline.yaml` are governance tooling,
+separate from the target Java/Angular application. Runtime `.orchestrator/` is ignored.
+Its controller owns progression, external exact-content approvals and proposal writes;
+specialist Codex executions remain read-only. Embedded approval alone is insufficient
+for factory progression. See ADR-0007 and the artifact contract compatibility notes.
+
 These instructions apply to the entire repository.
 
 More specific `AGENTS.md` files placed in subdirectories may add or refine instructions for those areas, but they must not contradict repository-level architectural decisions unless explicitly authorized.
