@@ -1,0 +1,955 @@
+schema_version: 1
+artifact_type: system_analysis
+artifact_id: eszkola-system-analysis
+revision: 1
+status: BLOCKED
+approval: null
+scope: >-
+  Analiza systemowa MVP eSzkola na rynku polskim na podstawie dokładnie
+  zatwierdzonej BA revision 6. Obejmuje uczestnictwo, edukację, handel w PLN,
+  komunikację, administrację, ochronę danych, KPI i jakość usługi.
+  Nie obejmuje wyboru technologii ani dostawców, finalnej architektury,
+  implementacji, zadań, DAG ani zatwierdzania artefaktów. Poza MVP pozostają
+  własne wideokonferencje, marketplace, aplikacje natywne, publiczne profile
+  dzieci, otwarty czat, AI tutor, wiele walut i rozpoznawanie pisma odręcznego.
+business_input:
+  artifact_id: eszkola-business-analysis
+  revision: 6
+  content_digest: sha256:87f40e1eb91b6f9487425fdff2a5351c221ec54b2d6e9055973e5261c496e45c
+sources:
+- id: SRC-BA
+  location: docs/requirements/business-analysis.yaml
+  revision: sha256:87f40e1eb91b6f9487425fdff2a5351c221ec54b2d6e9055973e5261c496e45c
+- id: SRC-BA-APPROVAL
+  location: .orchestrator/approvals/business-analysis-r6.yaml
+  revision: sha256:8489a1c6215e6bdc4eaff5286568c765e449db9b8d8aa317c8970cf1bfbb3726
+- id: SRC-PLAN
+  location: docs/biznesplan-platforma-kursy-dla-dzieci.md
+  revision: sha256:e70087992066d72c922a86bb3f14f1f9ccacba280f57f6e40ea982c6848c313c
+- id: SRC-PROGRAM
+  location: docs/szablon-programu-edukacyjnego-modul-4-zajecia.md
+  revision: sha256:07e61f9818cee38569fd40d148b284238a3d4870033feb387286caa1d3423e5d
+- id: SRC-AGENTS
+  location: AGENTS.md
+  revision: sha256:21c313daf8f49b633bb02ea8d37b5c255aadb103300a8bf27a28681c48b7c3b7
+- id: SRC-WORKFLOW
+  location: workflow.md
+  revision: sha256:29b371a2db9bd2fede728460654824ce001967caae734b94fd537bf22090e0e9
+- id: SRC-CONTRACT
+  location: docs/requirements/README.md
+  revision: sha256:4e833841f0830832a0d18ab58388957a8688dd2021f2410bf00ee6b64306a55f
+- id: SRC-ROLE
+  location: docs/requirements/system-analyst.md
+  revision: sha256:4b909a325f3eeeb46f6674d90e1dcc28349711e1cd510280ed9d3e913a012c44
+- id: SRC-BASELINE
+  location: docs/requirements/baseline.md
+  revision: sha256:994a815cee178e2ab3a2aa484fea648620d13d64e474a75e7ee94f24720e3934
+assumptions: []
+constraints:
+- id: CON-001
+  description: >-
+    BA revision 6 ma status APPROVED, approval Michała Wanielisty z
+    2026-10-06T18:48:07.375859+00:00 oraz zgodny zewnętrzny dowód wiążący
+    typ BUSINESS_ANALYSIS, ścieżkę, ID, rewizję i dokładny digest.
+    Historyczne section_notes BA o braku aprobaty opisują wcześniejszą propozycję;
+    nie zastępują aktualnego statusu i zewnętrznego dowodu. Brak otwartych BA BLOCKER.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'revision; status; approval; open_questions'}
+  - {source_id: SRC-BA-APPROVAL, locator: 'artifact; approval'}
+  - {source_id: SRC-CONTRACT, locator: Factory external approval evidence}
+- id: CON-002
+  description: >-
+    Michał Wanielista jest jedynym wymaganym biznesowym i wymaganiowym
+    zatwierdzającym. Konsultanci nie przejmują tej odpowiedzialności.
+    Ta propozycja SA nie posiada aprobaty. Zmiana BA lub SA wymaga przeglądu
+    wpływu i ponownej aprobaty dokładnego zmienionego artefaktu.
+  source_refs:
+  - {source_id: SRC-AGENTS, locator: '§1A; §6 Analysis roles and progression gates'}
+  - {source_id: SRC-CONTRACT, locator: Revision, approval and traceability policy}
+- id: CON-003
+  description: >-
+    Istniejące mandaty AGENTS dotyczące Java/Spring Boot, Angular/TypeScript,
+    HTTP/JSON, modularnego monolitu, PostgreSQL i migracji, S3-compatible
+    storage oraz Docker Compose na pojedynczym serwerze pozostają ograniczeniami
+    dla późniejszego etapu. SA nie wybiera ich wersji, bibliotek ani dostawców.
+    Accepted ADR podlegają procesowi ADR, a landing pozostaje zachowany.
+  source_refs:
+  - {source_id: SRC-AGENTS, locator: '§4; §16; §25'}
+  - {source_id: SRC-BA, locator: CON-003}
+- id: CON-004
+  description: >-
+    Baseline SR-01–SR-15 nie jest zatwierdzoną BA/SA. ID i linki pozostają
+    zachowane. Szczególnie SR-03, SR-04 i SR-05 wymagają przeglądu wpływu wobec
+    konfigurowalnego ukończenia, progresji i wszystkich bezpłatnych poprawek.
+    Ta propozycja nie zmienia baseline ani Accepted ADR i nie ustanawia migracji SR.
+  source_refs:
+  - {source_id: SRC-BASELINE, locator: 'Status; SR-03; SR-04; SR-05'}
+  - {source_id: SRC-BA, locator: CON-004}
+- id: CON-005
+  description: >-
+    Finalne kwestie prawne, podatkowe, ochrony małoletnich i retencji pozostają
+    bramkami przed właściwą produkcją lub sprzedażą. Nie stanowią same w sobie
+    blokady SA; nie wolno zastępować ich invented defaults.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'CON-006; Q-007; Q-008; Q-009; Q-010'}
+  - {source_id: SRC-PLAN, locator: '§21; Załącznik B'}
+- id: CON-006
+  description: >-
+    Kontroler zarezerwował system-analyst jako autora propozycji dla
+    /Users/mwanielista/git/eszkola, docs/requirements/system-analysis.yaml.
+    Początkowy snapshot wyjścia to ABSENT. Jedynie kontroler zapisuje pliki
+    i zarządza rezerwacjami; SA zwraca treść bez zapisu i bez zmiany stanu.
+    Rezerwacja jest behawioralna, a wejścia i nieobecność wyjścia wymagają
+    ponownego sprawdzenia przez kontrolera bezpośrednio przed publikacją.
+  source_refs:
+  - {source_id: SRC-WORKFLOW, locator: Single-writer coordination}
+  - {source_id: SRC-AGENTS, locator: 'Purpose of This File — controller ownership'}
+functional_requirements:
+- id: FR-001
+  description: System obsługuje konto opiekuna, profil dziecka, zgody i odrębny dostęp edukacyjny uczestnika.
+  rationale: Odpowiedzialność dorosłego musi być oddzielona od korzystania z edukacji.
+  priority: MUST
+  br_refs: [BR-001, BR-019]
+  acceptance_criteria:
+  - Opiekun może zarejestrować konto, zalogować się, utworzyć profil dziecka i zarządzać wymaganymi zgodami.
+  - Rejestracja zbiera oświadczenie pełnoletności, uprawnienia do działania i prawdziwości informacji; finalna treść pozostaje objęta SA-Q-006.
+  - System rozróżnia wielu uprawnionych opiekunów dziecka i przechowuje historię udzielonych zgód wraz z ich wersją oraz czasem.
+  - Uczestnik korzysta z odrębnego panelu edukacyjnego i nie może wykonywać zakupów ani czynności zastrzeżonych dla dorosłego.
+  - Sposób logowania dziecka, odzyskiwania dostępu i cykl relacji opiekuna wymagają odpowiedzi SA-Q-001 przed finalizacją tego zakresu.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-001; BR-019; Q-017'}
+- id: FR-002
+  description: Katalog przedstawia ofertę i istotne warunki właściwej wersji programu przed zakupem.
+  rationale: Kupujący musi rozpoznać zakres zobowiązania edukacyjnego i handlowego.
+  priority: MUST
+  br_refs: [BR-002, BR-018]
+  acceptance_criteria:
+  - Oferta przedstawia przedmiot, grupę docelową, wymagania wejściowe, cele, strukturę, liczbę i długość zajęć, limity grupy oraz czas dostępu do materiałów.
+  - Pełna cena brutto w PLN i istotne warunki realizacji są widoczne przed potwierdzeniem zakupu.
+  - Można ustalić, której opublikowanej wersji programu oraz której grupy i harmonogramu dotyczy oferta.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-002; BR-018'}
+- id: FR-003
+  description: Kwalifikacja i diagnoza stosują wymagania wejściowe odpowiedniej wersji programu.
+  rationale: Różne programy wymagają różnych kryteriów, bez globalizacji przykładu.
+  priority: MUST
+  br_refs: [BR-003]
+  acceptance_criteria:
+  - Jeśli wersja programu przewiduje diagnozę, system udostępnia ją i zachowuje wynik oraz rekomendację według jej kryteriów.
+  - Ocena spełnienia wymagań wejściowych wskazuje właściwą wersję i wymagania.
+  - Brak diagnozy w programie nie powoduje wymagania globalnego testu ani progu matematycznego przykładu.
+  source_refs:
+  - {source_id: SRC-BA, locator: BR-003}
+- id: FR-004
+  description: System zapisuje uczestnika do grupy i wiąże zamówienie, płatność oraz potwierdzenie uczestnictwa.
+  rationale: Ograniczenia miejsc i skutki płatności muszą być jednoznaczne.
+  priority: MUST
+  br_refs: [BR-004, BR-018]
+  acceptance_criteria:
+  - Zamówienie identyfikuje opiekuna, uczestnika, ofertę, grupę, zakupione warunki, kwotę i PLN.
+  - Jeśli utrzymywana jest nieopłacona rezerwacja, jej termin nie przekracza 24 godzin; system nie ustanawia obowiązkowo dokładnych 24 godzin.
+  - Potwierdzenie skutecznej płatności następuje po weryfikacji po stronie systemu; powrót przeglądarki od dostawcy nie jest samodzielnym dowodem zapłaty.
+  - Potwierdzona płatność tworzy jedno uczestnictwo; ponowne lub równoczesne dostarczenie tego samego potwierdzenia nie powiela płatności, zapisów ani operacji.
+  - Równoczesne zapisy nie przekraczają skonfigurowanej maksymalnej liczebności grupy.
+  - Rozliczenie wpłaty po wygaśnięciu rezerwacji wymaga decyzji SA-Q-002 i nie korzysta z historycznego domyślnego wariantu.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-004; BR-018; Q-017'}
+  - {source_id: SRC-AGENTS, locator: '§21 Payments'}
+- id: FR-005
+  description: Rozpoczęcie kolejnego etapu stosuje skonfigurowaną progresję niezależnie od wcześniejszego zakupu.
+  rationale: Zobowiązanie handlowe nie ustanawia globalnej blokady edukacyjnej.
+  priority: MUST
+  br_refs: [BR-005, BR-011]
+  acceptance_criteria:
+  - Brak warunku progresji pozwala rozpocząć kolejny etap bez globalnego zaliczenia poprzednika.
+  - Jeśli skonfigurowano wymagane zaliczenie, wynik wstępny ani wynik wymagający weryfikacji nie spełnia warunku.
+  - Finalne zaliczenie usuwa odpowiednią blokadę; wcześniejszy zakup następnika nie jest globalnie zabroniony.
+  - Wyjątek może nadać przypisany prowadzący nauczyciel, uprawniony administrator lub właściciel; autorstwo programu nie jest wymagane, sama rola metodyka nie wystarcza.
+  - Wyjątek zachowuje osobę, uczestnika, program lub etap, czas oraz uzasadnienie w audycie.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-005; BR-011; Q-005'}
+- id: FR-006
+  description: Harmonogram udostępnia uprawnionym osobom zajęcia, informacje do dołączenia i rejestrację obecności.
+  rationale: Rodzina i prowadzący potrzebują jednoznacznej informacji o realizacji zajęć.
+  priority: MUST
+  br_refs: [BR-006, BR-024]
+  acceptance_criteria:
+  - Uczestnik i opiekun widzą harmonogram swojej grupy oraz informację lub link do zewnętrznej lekcji.
+  - Przypisany nauczyciel zapisuje obecność dla właściwego wystąpienia zajęć i uczestnika.
+  - Harmonogram respektuje liczbę i długość zajęć programu oraz prezentuje Europe/Warsaw z poprawną zmianą czasu.
+  - Zajęcia odwołane i niezrealizowane oraz przełożone są rozróżnialne, tak aby przełożenie nie tworzyło podwójnej możliwej obecności.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-006; BR-024'}
+- id: FR-007
+  description: Materiały, zadania i przesłane odpowiedzi są udostępniane zgodnie z uczestnictwem i okresem dostępu.
+  rationale: Dostęp do nauki i jej dowodów musi odpowiadać zakupionej usłudze.
+  priority: MUST
+  br_refs: [BR-007]
+  acceptance_criteria:
+  - Uczestnik odczytuje udostępnione materiały i zadania oraz przesyła odpowiedzi powiązane z właściwym zadaniem i uczestnictwem.
+  - Uprawniony nauczyciel może sprawdzić odpowiedź wymagającą oceny ręcznej i udzielić informacji zwrotnej.
+  - Dostęp do materiałów jest sprawdzany według okresu oferty lub programu, bez globalnego okresu 90 dni.
+  - Odrzucone albo niekompletne przesłanie nie jest przedstawiane jako skutecznie oddana praca.
+  source_refs:
+  - {source_id: SRC-BA, locator: BR-007}
+- id: FR-008
+  description: System udostępnia trening i próbne sprawdzanie odrębnie od właściwej oceny.
+  rationale: Ćwiczenie nie może ujawniać chronionego egzaminu ani zastępować finalnego zaliczenia.
+  priority: MUST
+  br_refs: [BR-008, BR-023]
+  acceptance_criteria:
+  - Uczestnik wykonuje trening przewidziany programem i otrzymuje przewidziane wskazówki lub wyjaśnienia.
+  - Wyniki treningowe i próbne są oznaczone odrębnie od finalnego wyniku egzaminu.
+  - Odpowiedzi treningowe nie ujawniają klucza właściwego egzaminu przed zakończeniem oceny i uprawnionym przeglądem.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-008; BR-023'}
+- id: FR-009
+  description: Ocena i ukończenie stosują jawne kryteria wersji programu lub etapu.
+  rationale: Ukończenie i opanowanie efektów nie są tożsame we wszystkich programach.
+  priority: MUST
+  br_refs: [BR-009]
+  acceptance_criteria:
+  - Program może przewidywać egzamin albo ukończenie bez egzaminu; system nie narzuca egzaminu wszystkim programom.
+  - Progi, czas, kryteria odpowiedzi i kryteria efektów pochodzą z właściwej wersji, bez globalnego progu 75 procent.
+  - Bez egzaminu i dodatkowych kryteriów system oznacza ukończenie po realizacji wszystkich wymaganych elementów.
+  - Ukończenie nie ustanawia automatycznie opanowania wszystkich efektów, jeśli program takiego warunku nie definiuje.
+  source_refs:
+  - {source_id: SRC-BA, locator: BR-009}
+- id: FR-010
+  description: Próba i ocena zachowują historyczną podstawę oraz rozróżniają wynik wstępny, weryfikowany i finalny.
+  rationale: Wynik musi być odtwarzalny i chroniony przed retroaktywną zmianą.
+  priority: MUST
+  br_refs: [BR-010, BR-015]
+  acceptance_criteria:
+  - Każda próba wskazuje dokładne wersje programu, pytań, kryteriów odpowiedzi i zasad oceniania użyte podczas próby.
+  - Późniejsza edycja programu lub pytania nie zmienia historycznego wyniku ani jego podstawy.
+  - Wymagana ocena ręczna pozostawia wynik wstępny aż do zatwierdzenia przez uprawnioną osobę.
+  - Uzasadnione podejrzenie niesamodzielności pozostawia wynik niefinalny do weryfikacji przez uprawnionego nauczyciela lub administratora.
+  - Zatwierdzenie, weryfikacja i korekta zachowują wykonawcę, czas, decyzję, uzasadnienie gdy wymagane i poprzednią ocenę; nie zastępują historii bez śladu.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-010; BR-015'}
+- id: FR-011
+  description: Wszystkie poprawki i kolejne próby zaliczenia są bezpłatne.
+  rationale: Niepowodzenie edukacyjne nie generuje opłat za kolejne próby.
+  priority: MUST
+  br_refs: [BR-011]
+  acceptance_criteria:
+  - Żadna kolejna próba nie tworzy należności ani wymogu zakupu poprawki.
+  - Dostępność próby respektuje jawne zasady odpowiedniej wersji programu; bezpłatność nie ustanawia nieograniczonej liczby prób.
+  - Finalne zaliczenie aktualizuje wynik i skonfigurowaną progresję, bez globalnej blokady tam, gdzie jej nie skonfigurowano.
+  source_refs:
+  - {source_id: SRC-BA, locator: BR-011}
+- id: FR-012
+  description: System przedstawia opiekunowi postęp dziecka, a uczestnikowi zrozumiały następny krok.
+  rationale: Dane edukacyjne muszą wspierać dalsze działanie rodziny.
+  priority: MUST
+  br_refs: [BR-012, BR-022]
+  acceptance_criteria:
+  - Raport pokazuje frekwencję, realizację wymaganych elementów, zastosowane wyniki i postęp według właściwej wersji programu.
+  - Gdy program przewiduje takie informacje, raport zawiera osiągnięcie efektów, mocne strony, obszary pracy i rekomendację.
+  - Opiekun widzi wyłącznie raporty uprawnionych dzieci, a wynik wstępny jest odróżniony od finalnego.
+  - Panel uczestnika wyjaśnia aktualnie oczekiwane działanie i przyczynę ewentualnej blokady.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-012; BR-022'}
+- id: FR-013
+  description: Konsultacje odbywają się w kontrolowanych, archiwizowanych wątkach z tygodniowym limitem.
+  rationale: Pomoc nauczyciela musi mieć określone granice i widoczność dla rodziny.
+  priority: MUST
+  br_refs: [BR-013, BR-020]
+  acceptance_criteria:
+  - Dla aktywnego programu uczestnik może utworzyć jeden nowy wątek w tygodniu od poniedziałku do niedzieli Europe/Warsaw.
+  - Niewykorzystany limit nie przechodzi dalej; odpowiedzi w istniejącym wątku nie zużywają nowego limitu.
+  - Równoczesne próby utworzenia wątku nie obchodzą limitu uczestnika.
+  - Wątek jest archiwizowany, dostępny uprawnionemu opiekunowi, audytowalny i objęty uprawnioną moderacją.
+  - System zachowuje moment otwarcia i odpowiedzi pozwalające ocenić cel odpowiedzi do dwóch dni roboczych; kalendarz oraz zasady udziału opiekunów wymagają SA-Q-003.
+  - Komunikacja o usłudze nie kieruje dziecka do prywatnych kont nauczyciela.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-013; BR-020; Q-017'}
+- id: FR-014
+  description: Każda operacja sprawdza rolę oraz uprawnienie do konkretnego zasobu.
+  rationale: Ogólna rola nie dowodzi prawa do danych określonego dziecka lub grupy.
+  priority: MUST
+  br_refs: [BR-014, BR-001, BR-019]
+  acceptance_criteria:
+  - Opiekun bez relacji uprawniającej nie uzyskuje danych dziecka, ocen, prac, konsultacji ani informacji do zajęć.
+  - Nauczyciel bez przypisania nie uzyskuje danych edukacyjnych grupy.
+  - Uprawnienia metodyka, obsługi i administratora są rozdzielone według odpowiedzialności, a wyjątek progresji respektuje FR-005.
+  - Kontrola działa także przy bezpośrednim żądaniu zasobu poza interfejsem; ukryty przycisk nie jest zabezpieczeniem.
+  - Pełna macierz uprawnień i odebranie relacji wymagają SA-Q-001 przed finalizacją zakresu bezpieczeństwa.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-014; BR-001; BR-019'}
+  - {source_id: SRC-AGENTS, locator: '§14; §22'}
+- id: FR-015
+  description: Istotne i uprzywilejowane działania tworzą kontrolowaną historię audytową.
+  rationale: Uprawnione decyzje muszą być rozliczalne.
+  priority: MUST
+  br_refs: [BR-015]
+  acceptance_criteria:
+  - Zmiany ocen i uprawnień, wyjątki progresji, weryfikacja niesamodzielności, istotna administracja i rozliczalna moderacja tworzą wpis audytu.
+  - Wpis wskazuje wykonawcę, działanie, zasób, czas oraz uzasadnienie tam, gdzie jest wymagane.
+  - Uprawniona osoba może prześledzić zmianę; nieuprawniony użytkownik nie odczytuje ani nie modyfikuje audytu.
+  source_refs:
+  - {source_id: SRC-BA, locator: BR-015}
+- id: FR-016
+  description: System informuje rodzinę o zakupie i ważnych zdarzeniach realizacji, w tym zmianach zajęć.
+  rationale: Rodzina musi otrzymać informację umożliwiającą udział i rozliczenie usługi.
+  priority: MUST
+  br_refs: [BR-016, BR-021]
+  acceptance_criteria:
+  - Powiadomienia obejmują zakup lub płatność, zapis oraz ważne zdarzenia realizacji programu.
+  - Zmiana terminu, odwołanie lub istotna zmiana organizacyjna jest komunikowana uczestnikowi i opiekunowi przez platformę bez zbędnej zwłoki.
+  - MVP wspiera powiadomienia e-mail i rozróżnia przygotowanie komunikatu, przekazanie do wysyłki oraz błąd wysyłki.
+  - Błąd dostawcy e-mail nie cofa skutecznej płatności, zapisu ani zmiany harmonogramu; informacja w platformie zachowuje aktualny stan.
+  - Nie ustanawia się liczbowego globalnego SLA powiadomień o zmianach zajęć.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-016; BR-021'}
+- id: FR-017
+  description: Nauczyciel tworzy, wersjonuje i publikuje konfigurowalny program wraz z informacją o jakości treści.
+  rationale: Konfiguracja musi pozwalać obsługiwać różne przedmioty i zachować zakupione warunki.
+  priority: MUST
+  br_refs: [BR-017, BR-002, BR-009]
+  acceptance_criteria:
+  - Program pozwala określić przedmiot, grupę docelową, wejściowe wymagania, strukturę, cele, mierzalne efekty, ocenianie, ukończenie i progresję.
+  - Liczba i długość zajęć, liczebność grupy oraz czas dostępu są konfigurowalne; programy nie są globalnie ograniczone do czterech lekcji ani określonego wieku.
+  - System odróżnia wersję roboczą od opublikowanej i pozwala ustalić wersję realizowanego uczestnictwa.
+  - Treści zachowują informacje o kryteriach efektów, dostosowaniach i prawach użycia materiałów potrzebne do kontroli jakości.
+  - Edycja programu nie zmienia niejawnie zakupionych istotnych warunków ani historycznej podstawy oceny.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-017; BR-002; BR-009'}
+- id: FR-018
+  description: System obsługuje akceptację pogorszenia zakupionych warunków oraz należny wariant rozliczenia.
+  rationale: Zmiana programu lub harmonogramu nie może pomijać zobowiązań wobec opiekuna.
+  priority: MUST
+  br_refs: [BR-018, BR-021]
+  acceptance_criteria:
+  - Istotne pogorszenie zakupionych warunków wymaga zarejestrowanej akceptacji opiekuna dotyczącej konkretnej zmiany.
+  - Brak akceptacji i niemożliwość realizacji pierwotnej prowadzą do zaakceptowanej alternatywy albo zwrotu za niezrealizowaną część.
+  - Gdy świadczenie nie rozpoczęło się i nie może być wykonane na zakupionych warunkach, rozliczenie obejmuje całą zapłaconą za tę usługę kwotę.
+  - Nieobecność uczestnika na prawidłowo zrealizowanych zajęciach nie powoduje automatycznego zwrotu.
+  - Uprawniona administracja zapisuje podstawę, kwotę, walutę i status zwrotu; nie potwierdza wykonania zwrotu wyłącznie po jego zleceniu.
+  - Wycena niezrealizowanej części i granica istotnego pogorszenia wymagają SA-Q-002; VAT i finalne warunki konsumenckie pozostają SA-Q-006.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-018; BR-021'}
+- id: FR-019
+  description: System obsługuje celowe i kontrolowane przetwarzanie danych dzieci bez publicznych profili i domyślnego nagrywania.
+  rationale: Minimalizacja i ograniczenie komunikacji chronią uczestnika.
+  priority: MUST
+  br_refs: [BR-019]
+  acceptance_criteria:
+  - Dane dziecka są powiązane z udokumentowanym celem usługi i uprawnionym dostępem, bez publicznego profilu ani otwartego kontaktu niepowiązanych użytkowników.
+  - Lekcje nie są domyślnie nagrywane; uruchomienie nagrywania wymaga odrębnych zatwierdzonych celu, podstawy, informacji, dostępu i retencji.
+  - Cykl danych przewiduje wykonanie zatwierdzonych zasad retencji i praw osób, bez wymyślania okresów przechowywania lub podstaw prawnych.
+  - Finalne polityki, zgody, prawa osób i umowy z dostawcami muszą przejść bramkę produkcyjną SA-Q-006.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-019; Q-007'}
+- id: FR-020
+  description: Obsługa administracyjna pozwala odnotować przygotowanie nauczyciela do pracy z dziećmi.
+  rationale: Przydział do pracy wymaga potwierdzenia obowiązujących warunków organizacyjnych.
+  priority: MUST
+  br_refs: [BR-020]
+  acceptance_criteria:
+  - Uprawniona administracja może ustalić, czy nauczyciel przeszedł wymagane weryfikacje, przekazał dokumenty lub oświadczenia i odbył wymagane szkolenia.
+  - Potwierdzenia obejmują standardy ochrony małoletnich, kontrolowane kanały komunikacji oraz szkolenie bezpieczeństwa i platformy.
+  - Dostęp do informacji weryfikacyjnych jest ograniczony do odpowiedzialnych osób; zakres przechowywanych dowodów wynika z minimalizacji i zatwierdzonych zasad.
+  - Szczegółowe dokumenty, procedury i wymagania prawne nie są ustalane przez SA i wymagają SA-Q-006 przed produkcją.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-020; Q-010'}
+- id: FR-021
+  description: Uprawniona administracja obsługuje zakłócenia zajęć i sprawy organizacyjne.
+  rationale: Usługa musi zachować informację o dalszej realizacji albo rozliczeniu.
+  priority: MUST
+  br_refs: [BR-021]
+  acceptance_criteria:
+  - Nieobecność nauczyciela można obsłużyć przez zastępstwo albo nowy termin, zachowując powiązanie z pierwotnymi zajęciami.
+  - Awaria uniemożliwiająca lekcję prowadzi do zapisania nowego terminu i komunikacji zgodnej z FR-016.
+  - Uprawniona administracja może obsługiwać grupy, reklamacje, zwroty, incydenty i moderację z audytem istotnych operacji.
+  - Odwołanie lub przełożenie nie powoduje niejawnej utraty zakupionej usługi ani podwójnej frekwencji.
+  source_refs:
+  - {source_id: SRC-BA, locator: BR-021}
+- id: FR-022
+  description: Interfejs przedstawia zadania i informacje w polskim, responsywnym i zrozumiałym przebiegu nauki.
+  rationale: Uczestnik musi rozumieć kolejne działanie oraz błędy.
+  priority: MUST
+  br_refs: [BR-022]
+  acceptance_criteria:
+  - Podstawowe procesy opiekuna, uczestnika i nauczyciela mają polskie etykiety i zrozumiałe komunikaty walidacji.
+  - Układ pozwala wykonać podstawowe procesy na urządzeniach mobilnych i desktopowych bez utraty istotnych informacji.
+  - Dostosowania przewidziane przez program zachowują mierzoną umiejętność i nie podpowiadają metody rozwiązania.
+  source_refs:
+  - {source_id: SRC-BA, locator: BR-022}
+- id: FR-023
+  description: Matematyczne treści i odpowiedzi są prezentowane i oceniane zgodnie z kryteriami zadania.
+  rationale: Bezpieczna ocena nie może opierać się wyłącznie na prezentacji w przeglądarce.
+  priority: MUST
+  br_refs: [BR-023, BR-008]
+  acceptance_criteria:
+  - Wzory i równania używają LaTeX-compatible notation, a uczestnik może udzielić przewidzianej w zadaniu odpowiedzi.
+  - Ocena matematyczna następuje po stronie systemu zgodnie z kryteriami zadania; przesłany wynik klienta nie jest autorytatywną oceną.
+  - Wyrażenie matematyczne nie pozwala wykonać dowolnego kodu.
+  - Klucz egzaminu nie jest wysyłany do przeglądarki przed zakończeniem oceny i uprawnionym przeglądem.
+  - Rozpoznawanie odręcznych równań nie jest wymagane w MVP.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-023; BR-008'}
+  - {source_id: SRC-AGENTS, locator: '§24 UI and Accessibility'}
+- id: FR-024
+  description: System raportuje KPI pilota według zatwierdzonych liczników, mianowników i okien czasu.
+  rationale: Wyniki pilota nie mogą wynikać z nieporównywalnych definicji.
+  priority: MUST
+  br_refs: [BR-024]
+  acceptance_criteria:
+  - Ukończenie jest ilorazem ukończeń według wersji programu i uczestników rozpoczynających mierzony program lub etap; raport porównuje wynik z celem 70 procent.
+  - Kontynuacja obejmuje kwalifikujących się klientów z ukończonym wymaganym etapem, opublikowaną płatną logiczną kontynuacją i spełnionymi warunkami wejściowymi; brak oferty wyłącza z mianownika.
+  - Okno zakupu kontynuacji wynosi 60 dni od późniejszej daty ukończenia etapu lub udostępnienia zakupu; raport porównuje wynik z celem 60 procent.
+  - Frekwencja indywidualna i agregowana stosują odpowiednio obecności uczestnika i sumę obecności względem możliwych obecności; odwołane niezrealizowane zajęcia są wyłączone, przełożone liczone raz; cel agregowany to 80 procent.
+  - Po zakończeniu programu lub etapu zbierana jest jedna odpowiedź opiekuna głównego na uczestnictwo w skali 1–5; raport podaje średnią, wysłane ankiety, odpowiedzi i response rate względem celu 4,2/5.
+  - Raport udostępnia składniki obliczeń i zakres pomiaru; brak mianownika jest prezentowany jako brak podstawy wskaźnika, a nie osiągnięcie celu.
+  - KPI są celami biznesowymi, nie gwarancją wyniku systemu; główny opiekun i niejednoznaczne jednostki pomiaru wymagają SA-Q-004.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-024; Q-012; Q-017'}
+non_functional_requirements:
+- id: NFR-001
+  description: Kontrola dostępu i uwierzytelnienie chronią dane oraz działania uprzywilejowane.
+  rationale: Izolacja zasobów musi działać niezależnie od interfejsu.
+  priority: MUST
+  br_refs: [BR-014, BR-019, BR-015]
+  acceptance_criteria:
+  - Próby odczytu i zmiany cudzych dzieci, grup, ocen, konsultacji i plików są odrzucane także przez bezpośrednie żądania.
+  - Uwierzytelnienie uprzywilejowanych nauczycieli i administratorów uwzględnia MFA zgodnie z mandatem AGENTS; szczegółowy zakres i cykl odzyskania wymagają SA-Q-001.
+  - Produkcyjna komunikacja użytkowników z systemem jest chroniona HTTPS; sekrety pozostają poza repozytorium.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-014; BR-019; BR-015'}
+  - {source_id: SRC-AGENTS, locator: '§23; §25'}
+- id: NFR-002
+  description: Operacje finansowe i powtarzalne potwierdzenia zachowują poprawność i jednoznaczność skutków.
+  rationale: Powtórzenia i błędy zaokrągleń nie mogą zmieniać rozliczenia rodziny.
+  priority: MUST
+  br_refs: [BR-004, BR-018]
+  acceptance_criteria:
+  - Kwoty są decimal-safe i zawsze mają walutę; testy obliczeń nie korzystają z binary floating-point dla pieniędzy.
+  - Powtórne i równoczesne potwierdzenia tego samego zdarzenia płatności nie powielają zapisów, należności ani skutków biznesowych.
+  - Niezweryfikowane albo sprzeczne potwierdzenie nie nadaje statusu opłaconego uczestnictwa.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-004; BR-018'}
+  - {source_id: SRC-AGENTS, locator: '§21 Money; Payments'}
+- id: NFR-003
+  description: Dostępność funkcji kontrolowanych przez eSzkola osiąga cel 99,5 procent miesięcznie.
+  rationale: Podstawowy proces usługi musi być dostępny dla rodziny i nauczyciela.
+  priority: MUST
+  br_refs: [BR-026]
+  acceptance_criteria:
+  - Ocena obejmuje logowanie, katalog, zakup i zapis, panele rodziny, podstawowe funkcje nauczyciela, harmonogram i informacje do zajęć, materiały, oddawanie prac, wyniki, raporty, progresję oraz konsultacje.
+  - Miesięczna dostępność jest oceniana jako udział czasu dostępnego podstawowego procesu w czasie objętym pomiarem; blokująca awaria objętej funkcji jest niedostępnością.
+  - Serwis może być wyłączony z czasu pomiaru tylko przy informacji użytkownikom co najmniej 24 godziny wcześniej.
+  - Awaria zewnętrznego wideo nie jest automatycznie niedostępnością eSzkola, jeśli objęte funkcje eSzkola działają; awaria informacji do dołączenia należy do zakresu.
+  - Rozdzielczość, granice incydentu, częściowa awaria i metoda dowodzenia wyniku wymagają SA-Q-005 przed finalnym kryterium pomiarowym.
+  source_refs:
+  - {source_id: SRC-BA, locator: BR-026}
+  - {source_id: SRC-PLAN, locator: '§19'}
+- id: NFR-004
+  description: Odtworzenie usługi spełnia RPO maksymalnie 24 godziny i RTO maksymalnie cztery godziny.
+  rationale: Utrata danych i czas przerwy muszą mieć kontrolowane granice.
+  priority: MUST
+  br_refs: [BR-026, BR-019]
+  acceptance_criteria:
+  - Udokumentowany test odtworzenia z kopii pokazuje utratę danych nie większą niż 24 godziny i przywrócenie w czasie nie większym niż cztery godziny, według zatwierdzonej granicy pomiaru.
+  - Test sprawdza spójność uczestnictwa, płatności, zgód, prób i ocen, plików oraz audytu, a nie tylko uruchomienie usługi.
+  - Rutynowe wdrożenie nie usuwa danych użytkowników; persistent volume nie jest uznawany za backup.
+  - Zakres kopii, początek i koniec RTO oraz punkt odniesienia RPO pozostają SA-Q-005; nie przyjęto historycznych definicji jako obowiązujących.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-026; BR-019; Q-017'}
+  - {source_id: SRC-AGENTS, locator: '§25'}
+- id: NFR-005
+  description: Początkowa zdolność MVP obejmuje co najmniej 100 aktywnych rodzin i 10 równoczesnych zajęć.
+  rationale: Początkowy zakres działania nie może być ograniczony do pojedynczej grupy.
+  priority: MUST
+  br_refs: [BR-025]
+  acceptance_criteria:
+  - Weryfikacja początkowej zdolności obejmuje co najmniej 100 aktywnych rodzin i 10 równocześnie trwających zajęć oraz objęte podstawowe procesy platformy.
+  - Ocena kierunku rozwoju do około 10 000 rodzin i 200 zajęć wykazuje możliwość zachowania podstawowych pojęć edukacji i handlu bez fundamentalnej przebudowy domeny.
+  - Docelowa przyszła skala nie jest wymaganiem uruchomienia pilota z takim obciążeniem.
+  - Definicje jednostek, profil ruchu, granice odpowiedzi i dopuszczalne błędy wymagają SA-Q-004; nie przyjęto domyślnych czasów ani liczby żądań.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-025; Q-017'}
+- id: NFR-006
+  description: Interfejs jest oceniany względem celu projektowego WCAG 2.2 AA.
+  rationale: Dostępność warunkuje samodzielne korzystanie z nauki.
+  priority: SHOULD
+  br_refs: [BR-022]
+  acceptance_criteria:
+  - Przegląd podstawowych procesów obejmuje klawiaturę, etykiety formularzy, kontrast, fokus, czytelność komunikatów, skalowanie i responsywność.
+  - Wynik oceny wskazuje kryteria WCAG 2.2 AA, stwierdzone naruszenia i ograniczenia; samo narzędzie automatyczne nie jest dowodem pełnej zgodności.
+  - Wzory i zadania matematyczne są objęte oceną dostępności, a dostosowania nie zmieniają mierzonej umiejętności.
+  source_refs:
+  - {source_id: SRC-BA, locator: BR-022}
+  - {source_id: SRC-AGENTS, locator: '§24'}
+- id: NFR-007
+  description: Pliki i matematyczne dane wejściowe nie omijają walidacji ani ochrony zasobów.
+  rationale: Treści edukacyjne i odpowiedzi nie mogą stać się źródłem wykonania kodu lub wycieku.
+  priority: MUST
+  br_refs: [BR-007, BR-019, BR-023]
+  acceptance_criteria:
+  - Załączniki podlegają kontroli typu, rozmiaru, złośliwej zawartości i uprawnienia do konkretnego zasobu.
+  - Nieprawidłowy albo niezweryfikowany plik nie jest udostępniany jako bezpieczny materiał lub odpowiedź.
+  - Matematyczne wyrażenie nie wykonuje arbitralnego kodu i jest oceniane według kryteriów zadania po stronie systemu.
+  - Konkretne limity i dopuszczalne formaty pozostają SA-Q-007, bez wymyślonych wartości liczbowych.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-007; BR-019; BR-023'}
+  - {source_id: SRC-AGENTS, locator: '§23 Attachments; §24'}
+- id: NFR-008
+  description: Rejestrowanie zdarzeń i monitoring chronią poufność oraz pozwalają wykryć zakłócenia podstawowych procesów.
+  rationale: Rozliczalność i utrzymanie usługi nie mogą powodować ujawnienia danych dzieci lub sekretów.
+  priority: MUST
+  br_refs: [BR-015, BR-019, BR-026]
+  acceptance_criteria:
+  - Logi nie zawierają haseł, sekretów, tokenów, danych kart ani wrażliwych danych osobowych.
+  - Monitoring pozwala rozpoznać niedostępność objętych funkcji i błędy płatności, dostępu do materiałów oraz komunikacji z dostawcami.
+  - Informacje diagnostyczne i audyt są dostępne wyłącznie uprawnionym osobom; ważne decyzje można powiązać z wykonawcą i czasem bez kopiowania pełnych danych dziecka do logów.
+  - Retencja logów i konkretne warunki alarmowania wymagają SA-Q-006 i SA-Q-007.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-015; BR-019; BR-026'}
+  - {source_id: SRC-AGENTS, locator: '§23'}
+- id: NFR-009
+  description: Znaczące czasy i historia zachowują jednoznaczność także podczas zmiany czasu.
+  rationale: Harmonogram, tygodniowy limit, KPI i audyt wymagają spójnej chronologii.
+  priority: MUST
+  br_refs: [BR-006, BR-013, BR-015, BR-024]
+  acceptance_criteria:
+  - Znaczące zdarzenia zachowują jednoznaczny instant, strefę albo offset odpowiednio do ich znaczenia.
+  - Prezentacja harmonogramu i granice tygodnia konsultacji stosują Europe/Warsaw także przy przejściu czasu letniego i zimowego.
+  - Nieistniejący lub dwuznaczny lokalny termin nie jest zapisywany jako pozornie jednoznaczny bez rozstrzygnięcia; audyt zachowuje rzeczywistą kolejność zdarzeń.
+  source_refs:
+  - {source_id: SRC-BA, locator: 'BR-006; BR-013; BR-015; BR-024'}
+  - {source_id: SRC-AGENTS, locator: '§21 Time'}
+system_actors:
+- {id: ACT-001, description: 'Guardian — uprawniony dorosły zarządzający dzieckiem, zakupami, zgodami i raportami.', requirement_refs: [FR-001, FR-004, FR-012, FR-018]}
+- {id: ACT-002, description: 'Participant — dziecko korzystające z przypisanego programu bez prawa samodzielnego zakupu.', requirement_refs: [FR-001, FR-006, FR-007, FR-008, FR-009, FR-013]}
+- {id: ACT-003, description: 'Teacher — autor programu lub przypisany prowadzący, zgodnie z zakresem uprawnień.', requirement_refs: [FR-006, FR-010, FR-013, FR-017]}
+- {id: ACT-004, description: 'Methodologist — kontrola jakości treści i oceniania według nadanych uprawnień, bez automatycznego prawa wyjątku progresji.', requirement_refs: [FR-014, FR-017, FR-005]}
+- {id: ACT-005, description: 'Administrator / support — organizacja, sprawy rodzin, zwroty, incydenty i moderacja w rozdzielonych uprawnieniach.', requirement_refs: [FR-014, FR-018, FR-020, FR-021]}
+- {id: ACT-006, description: 'Business owner — Michał Wanielista; ostateczne decyzje biznesowe i uprawniony wyjątek progresji. Approval analizy pozostaje poza funkcjami produktu.', requirement_refs: [FR-005, FR-024]}
+- {id: ACT-007, description: 'Payment service — zewnętrzne przetwarzanie płatności i zwrotów oraz potwierdzenia ich statusu.', requirement_refs: [FR-004, FR-018, NFR-002]}
+- {id: ACT-008, description: 'Video service — zewnętrzna realizacja lekcji; eSzkola udostępnia uprawnionym informacje do dołączenia.', requirement_refs: [FR-006, FR-021, NFR-003]}
+- {id: ACT-009, description: 'Email service — przekazywanie powiadomień transakcyjnych i informacji o błędach wysyłki.', requirement_refs: [FR-016, NFR-008]}
+use_cases:
+- id: UC-001
+  description: Opiekun tworzy konto, profil dziecka i uzyskuje dostęp do panelu.
+  requirement_refs: [FR-001, FR-014, FR-019, NFR-001]
+  actor_refs: [ACT-001, ACT-002]
+  preconditions: [Proces rejestracji jest dostępny; szczegóły dostępu dziecka zależą od SA-Q-001.]
+  main_flow:
+  - Opiekun podaje wymagane dane i składa oświadczenia.
+  - System rejestruje konto, profil oraz wymagane zgody z wersją i czasem.
+  - Opiekun loguje się i widzi wyłącznie uprawnione dzieci.
+  - Uczestnik uzyskuje przewidziany odrębny dostęp edukacyjny.
+  alternatives: [Niekompletne oświadczenie lub brak wymaganego uprawnienia uniemożliwia odpowiednią czynność., Dodanie innego opiekuna i odzyskanie dostępu pozostają SA-Q-001.]
+  postconditions: [Dane i zgody są przypisane do właściwej relacji; dziecko nie otrzymuje prawa zakupu.]
+- id: UC-002
+  description: Nauczyciel przygotowuje i publikuje wersję programu.
+  requirement_refs: [FR-017, FR-002, FR-003, FR-009, FR-015]
+  actor_refs: [ACT-003, ACT-004]
+  preconditions: [Użytkownik ma uprawnienie do treści.]
+  main_flow:
+  - Nauczyciel określa strukturę, cele, wymagania wejściowe i warunki programu.
+  - Określa ocenianie, ukończenie, progresję oraz dostęp do materiałów.
+  - Rejestruje informacje potrzebne do kontroli jakości i legalności materiałów.
+  - Publikuje identyfikowalną wersję i ofertę zgodnie z uprawnieniami.
+  alternatives: [Program bez egzaminu używa własnych kryteriów ukończenia., Edycja po publikacji nie nadpisuje zakupionej wersji; istotne pogorszenie podlega UC-006.]
+  postconditions: [Oferta odnosi się do określonej wersji; wcześniejsza historia pozostaje zachowana.]
+- id: UC-003
+  description: Opiekun kupuje udział dziecka w grupie.
+  requirement_refs: [FR-002, FR-003, FR-004, FR-005, FR-016, NFR-002]
+  actor_refs: [ACT-001, ACT-007]
+  preconditions: [Opiekun ma uprawnienie do dziecka; oferta jest opublikowana.]
+  main_flow:
+  - Opiekun poznaje warunki i cenę brutto w PLN oraz wybiera ofertę i uczestnika.
+  - System wiąże zamówienie z wersją i grupą, sprawdzając dostępność miejsc.
+  - Jeśli istnieje rezerwacja, system określa jej termin nie późniejszy niż 24 godziny.
+  - Dostawca realizuje płatność; system weryfikuje jej potwierdzenie.
+  - System potwierdza jedno uczestnictwo i przekazuje informację rodzinie.
+  alternatives: [Powtórne potwierdzenie nie tworzy kolejnego skutku., Niepowodzenie płatności nie potwierdza uczestnictwa., Płatność po wygaśnięciu rezerwacji pozostaje SA-Q-002., Zakup następnika nie zastępuje skonfigurowanego warunku jego rozpoczęcia.]
+  postconditions: [Status zamówienia i uczestnictwa odzwierciedla zweryfikowany stan płatności.]
+- id: UC-004
+  description: Uczestnik realizuje zajęcia, zadania i trening.
+  requirement_refs: [FR-006, FR-007, FR-008, FR-012, FR-022, FR-023]
+  actor_refs: [ACT-002, ACT-003, ACT-008]
+  preconditions: [Uczestnik ma uprawniony dostęp do programu i danego elementu.]
+  main_flow:
+  - Panel pokazuje następne działanie i harmonogram.
+  - Uczestnik otrzymuje informację do dołączenia do lekcji.
+  - Nauczyciel rejestruje realizację i obecność.
+  - Uczestnik korzysta z materiałów, przesyła pracę i wykonuje trening.
+  - Nauczyciel lub system ocenia według kryteriów i przekazuje informację zwrotną.
+  alternatives: [Błąd przesłania pracy nie jest skutecznym oddaniem., Wygaśnięcie okresu materiałów ogranicza dostęp zgodnie z ofertą., Awaria lekcji prowadzi do UC-006.]
+  postconditions: [Realizacja i odpowiedzi są powiązane z uczestnictwem; postęp jest aktualny.]
+- id: UC-005
+  description: Uczestnik uzyskuje ocenę, ukończenie i dostęp do dalszego etapu.
+  requirement_refs: [FR-009, FR-010, FR-011, FR-005, FR-012, FR-015]
+  actor_refs: [ACT-002, ACT-003, ACT-005, ACT-006]
+  preconditions: [Dostęp do próby lub wymaganego elementu odpowiada zasadom wersji programu.]
+  main_flow:
+  - System zachowuje podstawę próby i odpowiedzi.
+  - Ocenia elementy automatyczne i przekazuje wymagane elementy do oceny ręcznej.
+  - Uprawniona osoba zatwierdza wynik po wymaganej weryfikacji.
+  - System ocenia ukończenie i skonfigurowaną progresję.
+  - Rodzina otrzymuje wynik i następny krok.
+  alternatives: [Podejrzenie niesamodzielności pozostawia wynik niefinalny do audytowanej decyzji., Niezaliczenie pozwala na bezpłatną poprawkę zgodnie z zasadami programu., Program bez egzaminu kończy się według wymaganych elementów., Uprawniony wyjątek progresji zapisuje osobę i uzasadnienie.]
+  postconditions: [Historia próby pozostaje odtwarzalna; tylko finalny wynik lub ważny wyjątek spełnia wymagający tego warunek.]
+- id: UC-006
+  description: Organizator obsługuje zakłócenie lub pogorszenie zakupionych warunków.
+  requirement_refs: [FR-018, FR-021, FR-016, FR-015]
+  actor_refs: [ACT-001, ACT-003, ACT-005, ACT-007]
+  preconditions: [Istnieje zakupiona usługa i uprawniona osoba obsługująca sprawę.]
+  main_flow:
+  - Organizator zapisuje przyczynę oraz zmianę lub zakłócenie.
+  - Dla nieobecności prowadzącego ustala zastępstwo albo termin; dla awarii uniemożliwiającej zajęcia ustala nowy termin.
+  - System informuje rodzinę i rejestruje wymaganą akceptację istotnego pogorszenia.
+  - Przy braku akceptacji i niemożliwości pierwotnej realizacji zapisuje zaakceptowaną alternatywę albo właściwy zwrot.
+  - Zwrot jest śledzony do zweryfikowanego statusu, a działania są audytowane.
+  alternatives: [Przed rozpoczęciem niemożliwej do wykonania usługi zwrot jest pełny., Po częściowej realizacji wycena pozostałej części wymaga SA-Q-002., Nieobecność uczestnika nie ustanawia automatycznego zwrotu.]
+  postconditions: [Zakupione warunki i rozliczenie pozostają możliwe do prześledzenia.]
+- id: UC-007
+  description: Uczestnik korzysta z konsultacji asynchronicznej.
+  requirement_refs: [FR-013, FR-014, FR-015, NFR-009]
+  actor_refs: [ACT-002, ACT-001, ACT-003, ACT-005]
+  preconditions: [Program jest aktywny; uprawnienie i tygodniowy limit pozwalają rozpocząć wątek.]
+  main_flow:
+  - Uczestnik rozpoczyna nowy wątek.
+  - System przypisuje tydzień Europe/Warsaw i zużywa bieżący limit.
+  - Nauczyciel udziela odpowiedzi w kontrolowanym kanale.
+  - Uprawniony opiekun widzi komunikację, a system zachowuje archiwum.
+  alternatives: [Kolejny nowy wątek w tym tygodniu jest ograniczony., Odpowiedź w istniejącym wątku nie zużywa nowego limitu., Moderacja wymaga uprawnienia i audytu., Udział opiekunów i kalendarz odpowiedzi pozostają SA-Q-003.]
+  postconditions: [Wątek jest rozliczalny i dostępny zgodnie z relacją uczestnictwa.]
+- id: UC-008
+  description: Właściciel ocenia KPI pilota i satysfakcję rodzin.
+  requirement_refs: [FR-024, FR-006, FR-009, FR-014]
+  actor_refs: [ACT-006, ACT-005, ACT-001]
+  preconditions: [Istnieją dane badanego programu lub etapu oraz odpowiednie uprawnienie.]
+  main_flow:
+  - System ustala zakres pomiaru i uczestnictwa rozpoczynające etap.
+  - Oblicza ukończenia oraz kwalifikację i okna kontynuacji.
+  - Agreguje możliwe obecności i obecności.
+  - Zbiera jedną ankietę głównego opiekuna na uczestnictwo.
+  - Przedstawia KPI, liczniki, mianowniki i porównanie z celami.
+  alternatives: [Brak właściwej kontynuacji wyłącza klienta z mianownika., Brak mianownika daje brak podstawy wskaźnika., Ustalenie głównego opiekuna i deduplikacja klienta wymagają SA-Q-004.]
+  postconditions: [Raport nie zastępuje celów ekonomicznych pilota wymyśloną marżą.]
+domain_concepts:
+- {id: DOM-001, description: 'Guardian relationship — uprawnienie dorosłego wobec określonego dziecka, odrębne od samego konta; cykl wymaga SA-Q-001.', requirement_refs: [FR-001, FR-014]}
+- {id: DOM-002, description: 'Program / module definition — konfigurowalne cele, struktura i zasady edukacyjne, odrębne od wersji i realizacji.', requirement_refs: [FR-017, FR-002]}
+- {id: DOM-003, description: 'Published program version — identyfikowalna podstawa uczestnictwa i oceny, której późniejsza edycja nie nadpisuje.', requirement_refs: [FR-017, FR-009, FR-010]}
+- {id: DOM-004, description: 'Scheduled group / lesson occurrence — konkretna grupa i wystąpienie zajęć, odrębne od definicji, wersji oraz zapisu.', requirement_refs: [FR-004, FR-006, FR-021]}
+- {id: DOM-005, description: 'Enrollment / purchased terms — uczestnictwo dziecka powiązane z ofertą, grupą i obowiązującymi zakupionymi warunkami.', requirement_refs: [FR-004, FR-018]}
+- {id: DOM-006, description: 'Order / payment / refund — odrębne zobowiązanie, zweryfikowany stan przepływu pieniędzy i jego rozliczenie.', requirement_refs: [FR-004, FR-018, NFR-002]}
+- {id: DOM-007, description: 'Attempt / result / completion — historyczna próba, status oceny oraz ukończenie według wersji; nie są zamienne.', requirement_refs: [FR-009, FR-010, FR-011]}
+- {id: DOM-008, description: 'Progression condition / exception — skonfigurowany warunek rozpoczęcia etapu albo audytowane odstępstwo uprawnionej osoby.', requirement_refs: [FR-005, FR-015]}
+- {id: DOM-009, description: 'Consultation thread — archiwizowana komunikacja przypisana do aktywnego programu i tygodniowego limitu.', requirement_refs: [FR-013]}
+- {id: DOM-010, description: 'KPI cohort / continuation eligibility — zakres uczestnictw i klientów spełniających jawne warunki pomiaru, odrębny od liczby kont.', requirement_refs: [FR-024, NFR-005]}
+data_requirements:
+- id: DATA-001
+  description: >-
+    Konto, dziecko, relacje opiekunów i uprawnienia wymagają informacji o obowiązywaniu
+    i pochodzeniu uprawnienia. Zgody oraz oświadczenia zachowują wersję, osobę i czas.
+    Zakres danych i retencja wynikają z minimalizacji i zatwierdzonych polityk;
+    cykl nadania, odebrania i odzyskiwania pozostaje SA-Q-001.
+  requirement_refs: [FR-001, FR-014, FR-019]
+- id: DATA-002
+  description: >-
+    Definicja programu, wersja, oferta, grupa, harmonogram i uczestnictwo pozostają
+    rozróżnialne. Dane zachowują zakupione warunki, cenę brutto, PLN, okres materiałów,
+    kryteria wejścia, ukończenia i progresji oraz powiązania zmian i akceptacji.
+  requirement_refs: [FR-002, FR-003, FR-004, FR-017, FR-018]
+- id: DATA-003
+  description: >-
+    Zamówienie, rezerwacja, płatność i zwrot zachowują własną tożsamość, status,
+    kwotę, walutę i zweryfikowane zdarzenia. Konieczna jest identyfikacja powtórnego
+    potwierdzenia. Termin rezerwacji nie przekracza 24 godzin; historycznych stanów
+    nie zastępuje się pozornym powodzeniem po błędzie integracji.
+  requirement_refs: [FR-004, FR-018, NFR-002]
+- id: DATA-004
+  description: >-
+    Każda próba zachowuje odpowiedzi, dokładne wersje pytań i reguł, użyte kryteria,
+    wynik wstępny i finalny, weryfikację oraz historię korekt. Edycja treści nie
+    nadpisuje tej podstawy. Prace, materiały i prawa użycia są powiązane z programem
+    i uczestnictwem, a dostęp wygasa według warunków oferty.
+  requirement_refs: [FR-007, FR-008, FR-009, FR-010, FR-017]
+- id: DATA-005
+  description: >-
+    Harmonogram i frekwencja zachowują wystąpienie zajęć, rzeczywistą realizację,
+    uczestnika, obecność, odwołanie i powiązanie przełożenia. Timestamps pozwalają
+    odtworzyć jednoznaczną chronologię i prezentację Europe/Warsaw.
+  requirement_refs: [FR-006, FR-021, FR-024, NFR-009]
+- id: DATA-006
+  description: >-
+    Konsultacje zachowują uczestnika, program, autorów, czas, tydzień limitu,
+    wiadomości i historię moderacji. Archiwum i dane audytowe podlegają uprawnieniom
+    oraz zatwierdzonej retencji; nie przyjęto globalnego czasu zamknięcia wątku.
+  requirement_refs: [FR-013, FR-014, FR-015, FR-019]
+- id: DATA-007
+  description: >-
+    KPI wymagają danych rozpoczęcia i ukończenia etapu, kwalifikacji, dostępności
+    zakupu kontynuacji, zakupu w oknie, obecności i ankiet. Raport zachowuje zakres
+    oraz liczniki i mianowniki. Ankieta ma skalę 1–5 i jedno uczestnictwo; główny
+    opiekun oraz jednostka klienta pozostają SA-Q-004.
+  requirement_refs: [FR-024]
+- id: DATA-008
+  description: >-
+    Powiadomienia zachowują zdarzenie biznesowe, właściwych odbiorców i status
+    przekazania lub błędu. Audit zachowuje wykonawcę, zasób, działanie i czas oraz
+    wymagane uzasadnienie. Dowody przygotowania nauczyciela podlegają minimalizacji,
+    odrębnym uprawnieniom i bramce prawnej przed produkcją.
+  requirement_refs: [FR-015, FR-016, FR-020, NFR-008]
+integrations:
+- id: INT-001
+  description: >-
+    Zewnętrzne płatności przyjmują odniesienie do zamówienia, kwotę i PLN;
+    system weryfikuje potwierdzenia i koreluje zwroty. Powtórzenia, brak odpowiedzi,
+    nieprawidłowe potwierdzenie i niejednoznaczny status nie powodują fikcyjnego
+    powodzenia ani powielenia uczestnictwa. Płatność po wygaśnięciu wymaga SA-Q-002.
+    Nie wskazuje się operatora ani projektu adaptera.
+  requirement_refs: [FR-004, FR-018, NFR-002]
+- id: INT-002
+  description: >-
+    Zewnętrzne wideo realizuje lekcję; platforma udostępnia informacje do dołączenia
+    wyłącznie właściwemu uczestnictwu. Awaria uniemożliwiająca zajęcia uruchamia
+    obsługę nowego terminu. Nie wymaga się tworzenia spotkania przez API ani
+    nagrywania; zakres dostępności platformy odróżnia działający link od działania wideo.
+  requirement_refs: [FR-006, FR-019, FR-021, NFR-003]
+- id: INT-003
+  description: >-
+    Zewnętrzna wysyłka e-mail otrzymuje dane konieczne do powiadomienia właściwych
+    odbiorców. Platforma odróżnia przekazanie od błędu i nie twierdzi, że e-mail
+    został przeczytany. Błąd dostawcy nie cofa zdarzenia biznesowego; polityka
+    ponowień i granice czasowe pozostają SA-Q-007.
+  requirement_refs: [FR-016, NFR-008]
+- id: INT-004
+  description: >-
+    Przechowywanie plików i sprawdzanie złośliwej zawartości muszą zachować
+    powiązanie z materiałem lub odpowiedzią, kontrolę dostępu i status walidacji.
+    Niedostępność przechowywania lub skanowania nie pozwala oznaczyć pliku jako
+    poprawnie i bezpiecznie udostępnionego. S3-compatible storage jest istniejącym
+    mandatem, a dostawca, formaty i limity nie są wybierane w SA.
+  requirement_refs: [FR-007, NFR-007]
+edge_cases:
+- {id: EDGE-001, description: 'Dwóch opiekunów działa równocześnie wobec tego samego dziecka; uprawnienia są odrębne, a zasady zmiany relacji wymagają SA-Q-001.', requirement_refs: [FR-001, FR-014]}
+- {id: EDGE-002, description: 'Równoczesny zakup ostatniego miejsca nie może przekroczyć maksymalnej grupy; wpłata po wygaśnięciu rezerwacji nie ma domyślnego rozliczenia bez SA-Q-002.', requirement_refs: [FR-004, NFR-002]}
+- {id: EDGE-003, description: 'Nieopłacona rezerwacja może mieć termin krótszy niż 24 godziny; dokładne 24 godziny nie są globalną regułą.', requirement_refs: [FR-004]}
+- {id: EDGE-004, description: 'Program bez egzaminu i bez dodatkowych kryteriów kończy się po wymaganych elementach; ukończenie nie dowodzi wszystkich efektów.', requirement_refs: [FR-009, FR-024]}
+- {id: EDGE-005, description: 'Nauczyciel prowadzący niebędący autorem może przyznać uprawniony wyjątek; metodyk bez osobnego uprawnienia nie może.', requirement_refs: [FR-005, FR-014, FR-015]}
+- {id: EDGE-006, description: 'Wysoki wynik wstępny lub podejrzenie niesamodzielności nie odblokowuje wymagającej finalnego zaliczenia progresji.', requirement_refs: [FR-005, FR-010]}
+- {id: EDGE-007, description: 'Zmiana czasu i przełom niedzieli oraz poniedziałku nie podwajają tygodniowego limitu; dwuznaczny termin lekcji wymaga rozstrzygnięcia.', requirement_refs: [FR-006, FR-013, NFR-009]}
+- {id: EDGE-008, description: 'Przełożone zajęcia liczą się raz, odwołane i niezrealizowane nie zaniżają frekwencji przez dodatkowy mianownik.', requirement_refs: [FR-006, FR-021, FR-024]}
+- {id: EDGE-009, description: 'Brak płatnej logicznej kontynuacji wyłącza klienta z mianownika; oferta udostępniona później przesuwa początek okna 60 dni.', requirement_refs: [FR-024]}
+- {id: EDGE-010, description: 'Niezaakceptowane pogorszenie po częściowej realizacji nie oznacza automatycznie pełnego zwrotu; przed rozpoczęciem niemożliwej usługi zwrot jest pełny.', requirement_refs: [FR-018]}
+- {id: EDGE-011, description: 'Wygaśnięcie dostępu do materiałów i edycja programu nie nadpisują historycznej próby, oceny ani zakupionych warunków.', requirement_refs: [FR-007, FR-010, FR-017]}
+- {id: EDGE-012, description: 'Brak odpowiedzi ankietowych lub zerowy mianownik KPI jest oznaczany jako brak podstawy pomiaru; nie jako zerowa satysfakcja lub osiągnięty cel.', requirement_refs: [FR-024]}
+error_scenarios:
+- {id: ERR-001, description: 'Nieprawidłowe, powtórne lub sprzeczne potwierdzenie płatności jest rozróżnione od skutecznej nowej płatności; uczestnictwo nie jest fikcyjnie potwierdzane.', requirement_refs: [FR-004, NFR-002]}
+- {id: ERR-002, description: 'Odmowa uprawnienia do dziecka, grupy lub pliku blokuje odczyt i zmianę, bez ujawnienia chronionej treści w komunikacie.', requirement_refs: [FR-014, NFR-001]}
+- {id: ERR-003, description: 'Niekompletny upload, przekroczony zatwierdzony limit, niedozwolony format, wykryte malware lub niedostępne skanowanie nie dają statusu bezpiecznie oddanej pracy.', requirement_refs: [FR-007, NFR-007]}
+- {id: ERR-004, description: 'Niebezpieczne wyrażenie matematyczne jest odrzucane bez wykonania kodu; błąd obliczenia nie tworzy autorytatywnej oceny.', requirement_refs: [FR-023, NFR-007]}
+- {id: ERR-005, description: 'Awaria wideo uniemożliwiająca zajęcia jest obsługiwana nowym terminem; brak działających informacji do dołączenia po stronie eSzkola wchodzi do oceny dostępności.', requirement_refs: [FR-006, FR-021, NFR-003]}
+- {id: ERR-006, description: 'Błąd e-mail jest widoczny w statusie wysyłki i diagnostyce; dane o zakupie i harmonogramie w platformie pozostają zgodne ze zdarzeniem biznesowym.', requirement_refs: [FR-016, NFR-008]}
+- {id: ERR-007, description: 'Brak wymaganego zatwierdzenia lub weryfikacji pozostawia wynik niefinalny; raport i progresja nie przedstawiają go jako finalnego.', requirement_refs: [FR-010, FR-012, FR-005]}
+- {id: ERR-008, description: 'Niepowodzenie zwrotu nie jest oznaczane jako wykonane rozliczenie; uprawniona administracja widzi rzeczywisty status sprawy.', requirement_refs: [FR-018, FR-021]}
+- {id: ERR-009, description: 'Nieudane odtworzenie albo niespójna historia po przywróceniu nie dowodzą spełnienia RPO/RTO; test obejmuje dane i podstawowe procesy.', requirement_refs: [NFR-004, NFR-008]}
+security_requirements:
+- {id: SEC-001, description: 'Uwierzytelnienie i autoryzacja są egzekwowane przez system dla każdego zasobu, z rozdzieleniem rodziny, przypisanego nauczyciela, metodyka, obsługi i administracji.', requirement_refs: [FR-001, FR-014, NFR-001]}
+- {id: SEC-002, description: 'MFA użytkowników uprzywilejowanych, HTTPS i ochrona sekretów wynikają z mandatów AGENTS; zakres odzyskiwania dostępu pozostaje SA-Q-001.', requirement_refs: [NFR-001]}
+- {id: SEC-003, description: 'Serwerowa weryfikacja płatności i idempotencja chronią przed nadaniem dostępu na podstawie niezweryfikowanych danych klienta.', requirement_refs: [FR-004, NFR-002]}
+- {id: SEC-004, description: 'Klucze egzaminu i pełne kryteria odpowiedzi są chronione przed przedwczesnym ujawnieniem, a matematyczne dane wejściowe nie uruchamiają kodu.', requirement_refs: [FR-008, FR-023, NFR-007]}
+- {id: SEC-005, description: 'Pliki wymagają walidacji, kontroli rozmiaru i typu, sprawdzenia złośliwej zawartości i zasobowego dostępu także poza ekranem produktu.', requirement_refs: [FR-007, FR-014, NFR-007]}
+- {id: SEC-006, description: 'Dane dzieci są minimalizowane; brak publicznych profili, prywatnych kontaktów nauczyciela i domyślnego nagrywania; retencja wymaga zatwierdzenia.', requirement_refs: [FR-013, FR-019, FR-020]}
+- {id: SEC-007, description: 'Uprzywilejowane decyzje i zmiany pozostawiają kontrolowany audyt; logowanie diagnostyczne wyklucza sekrety, dane kart i wrażliwe dane osobowe.', requirement_refs: [FR-015, NFR-008]}
+br_coverage:
+- {br_id: BR-001, requirement_refs: [FR-001, FR-014], exclusion_reason: null}
+- {br_id: BR-002, requirement_refs: [FR-002, FR-017], exclusion_reason: null}
+- {br_id: BR-003, requirement_refs: [FR-003], exclusion_reason: null}
+- {br_id: BR-004, requirement_refs: [FR-004, NFR-002], exclusion_reason: null}
+- {br_id: BR-005, requirement_refs: [FR-005], exclusion_reason: null}
+- {br_id: BR-006, requirement_refs: [FR-006, NFR-009], exclusion_reason: null}
+- {br_id: BR-007, requirement_refs: [FR-007, NFR-007], exclusion_reason: null}
+- {br_id: BR-008, requirement_refs: [FR-008, FR-023], exclusion_reason: null}
+- {br_id: BR-009, requirement_refs: [FR-009, FR-017], exclusion_reason: null}
+- {br_id: BR-010, requirement_refs: [FR-010], exclusion_reason: null}
+- {br_id: BR-011, requirement_refs: [FR-011, FR-005], exclusion_reason: null}
+- {br_id: BR-012, requirement_refs: [FR-012], exclusion_reason: null}
+- {br_id: BR-013, requirement_refs: [FR-013, NFR-009], exclusion_reason: null}
+- {br_id: BR-014, requirement_refs: [FR-014, NFR-001], exclusion_reason: null}
+- {br_id: BR-015, requirement_refs: [FR-015, FR-010, NFR-001, NFR-008, NFR-009], exclusion_reason: null}
+- {br_id: BR-016, requirement_refs: [FR-016], exclusion_reason: null}
+- {br_id: BR-017, requirement_refs: [FR-017], exclusion_reason: null}
+- {br_id: BR-018, requirement_refs: [FR-002, FR-004, FR-018, NFR-002], exclusion_reason: null}
+- {br_id: BR-019, requirement_refs: [FR-001, FR-014, FR-019, NFR-001, NFR-004, NFR-007, NFR-008], exclusion_reason: null}
+- {br_id: BR-020, requirement_refs: [FR-020, FR-013], exclusion_reason: null}
+- {br_id: BR-021, requirement_refs: [FR-021, FR-016, FR-018], exclusion_reason: null}
+- {br_id: BR-022, requirement_refs: [FR-012, FR-022, NFR-006], exclusion_reason: null}
+- {br_id: BR-023, requirement_refs: [FR-023, FR-008, NFR-007], exclusion_reason: null}
+- {br_id: BR-024, requirement_refs: [FR-024, FR-006, NFR-009], exclusion_reason: null}
+- {br_id: BR-025, requirement_refs: [NFR-005], exclusion_reason: null}
+- {br_id: BR-026, requirement_refs: [NFR-003, NFR-004, NFR-008], exclusion_reason: null}
+open_questions:
+- id: SA-Q-001
+  question: >-
+    Jak dziecko loguje się i odzyskuje dostęp, kto dodaje i odbiera relacje kolejnych
+    opiekunów, jak sprawdza się ich uprawnienie, jak działa spór lub utrata dostępu
+    oraz jaka jest pełna macierz uprawnień metodyka, obsługi i administracji?
+    Jakie operacje wymagają MFA i jak odzyskuje je użytkownik uprzywilejowany?
+    BLOCKER dla finalnego zakresu tożsamości i bezpieczeństwa: samo istnienie
+    wielu opiekunów nie określa uprawnionych przejść relacji ani dostępu dziecka.
+    To doprecyzowanie BA Q-017 i BR-014, nie ponowne otwarcie historycznego Q-016.
+  severity: BLOCKER
+  owner: Michał Wanielista
+  affected_refs: [FR-001, FR-014, NFR-001, UC-001, DATA-001]
+  status: OPEN
+  resolution: null
+- id: SA-Q-002
+  question: >-
+    Jaki jest aktualny skutek wpłaty po wygaśnięciu rezerwacji lub utracie miejsca?
+    Jak ustala się wycenę niezrealizowanej części usługi i kto kwalifikuje zmianę
+    jako istotne pogorszenie? BLOCKER dla finalizacji stanów uczestnictwa
+    i rozliczeń: nie można samodzielnie wybierać automatycznego zapisu, przeniesienia,
+    zwrotu albo proporcji zwrotu. Reguła pełnego zwrotu przed rozpoczęciem oraz
+    zwrotu niezrealizowanej części pozostaje przyjęta; pytanie dotyczy jej operacjonalizacji.
+  severity: BLOCKER
+  owner: Michał Wanielista
+  affected_refs: [FR-004, FR-018, UC-003, UC-006, DATA-003]
+  status: OPEN
+  resolution: null
+- id: SA-Q-003
+  question: >-
+    Czy opiekun może inicjować wątek w imieniu uczestnika i jak współdzieli limit,
+    jaki kalendarz wyznacza dwa dni robocze oraz jak określa się aktywność programu
+    i zamknięcie konsultacji? NON_BLOCKER dla opisu wymaganych funkcji: zatwierdzone
+    jeden wątek tygodniowo, Europe/Warsaw, brak przenoszenia i bezpłatne odpowiedzi
+    są wystarczające do wyznaczenia zakresu. Odpowiedź jest wymagana przed
+    finalizacją obliczania terminu i dodatkowych przejść; nie przyjęto dawnego 48 h.
+  severity: NON_BLOCKER
+  owner: Michał Wanielista
+  affected_refs: [FR-013, UC-007, DATA-006]
+  status: OPEN
+  resolution: null
+- id: SA-Q-004
+  question: >-
+    Jak definiuje się aktywną rodzinę i równoczesne zajęcia, profil obciążenia,
+    dopuszczalne błędy i czasy odpowiedzi? Jak wyznacza się głównego opiekuna,
+    deduplikuje kwalifikującego klienta przy kilku dzieciach i określa granice
+    daty zakupu w oknie 60 dni? NON_BLOCKER dla analizy zakresu: cele skali i KPI
+    oraz ich podstawowe liczniki i mianowniki są zatwierdzone. Te szczegóły muszą
+    zostać rozstrzygnięte przed finalnymi testami obciążenia i raportem pilota;
+    nie ustanawia się domyślnego latency ani historycznych jednostek z BA revision 5.
+  severity: NON_BLOCKER
+  owner: Michał Wanielista
+  affected_refs: [FR-024, NFR-005, UC-008, DATA-007]
+  status: OPEN
+  resolution: null
+- id: SA-Q-005
+  question: >-
+    Jakie granice incydentu, częściowej niedostępności, rozdzielczość obserwacji
+    i dowody pomiaru obowiązują dla 99,5 procent? Co rozpoczyna i kończy RTO,
+    jaki punkt odniesienia określa RPO i jaki zakres danych ma test odtworzenia?
+    NON_BLOCKER dla identyfikacji jakości: liczby i zakres funkcji są zatwierdzone,
+    a §19 deleguje metodę dalszej analizie. Odpowiedź wymagana przed zatwierdzeniem
+    planu pomiaru i dowodzeniem spełnienia celów; SA nie wybiera infrastruktury.
+  severity: NON_BLOCKER
+  owner: Michał Wanielista
+  affected_refs: [NFR-003, NFR-004, NFR-008, ERR-009]
+  status: OPEN
+  resolution: null
+- id: SA-Q-006
+  question: >-
+    Jakie finalne zgody, oświadczenia, podstawy i retencja danych, prawa osób,
+    umowy z procesorami, VAT, dokumenty sprzedaży, reklamacje, procedury ręcznej
+    oceny, przygotowania nauczyciela i incydentów zostaną zatwierdzone?
+    NON_BLOCKER dla SA zgodnie z BA Q-007–Q-010 i planem §21: brakujące treści
+    i procedury są jawnie odroczone do właściwych bramek produkcyjnych.
+    Brak dodatkowego SLA oceny nie upoważnia do przyjęcia czasu z przykładu.
+  severity: NON_BLOCKER
+  owner: Michał Wanielista
+  affected_refs: [FR-001, FR-010, FR-018, FR-019, FR-020, FR-021, NFR-008]
+  status: OPEN
+  resolution: null
+- id: SA-Q-007
+  question: >-
+    Jakie limity i formaty plików, kryteria walidacji, zasady ponowień integracji,
+    retencja diagnostyki oraz warunki alertowania są potrzebne dla MVP?
+    NON_BLOCKER dla wyznaczenia wymaganych kontroli: walidacja, ochrona i obsługa
+    niepowodzeń są określone bez wyboru dostawcy. Konkretne wartości wymagają
+    decyzji przed finalizacją odpowiednich kontraktów i testów; nie tworzy się
+    arbitralnych rozmiarów plików, odstępów ani liczby prób.
+  severity: NON_BLOCKER
+  owner: Michał Wanielista
+  affected_refs: [FR-007, FR-016, NFR-007, NFR-008, INT-003, INT-004]
+  status: OPEN
+  resolution: null
+- id: SA-Q-008
+  question: >-
+    Jakie budżet, marża i kryteria ekonomicznej oceny pilota mają obowiązywać?
+    NON_BLOCKER dla SA zgodnie z BA Q-012: ekonomika pozostaje walidacją pilota,
+    nie brakującą globalną regułą platformy. Nie ustanawia się celu marży ani
+    nowych funkcji księgowych wyłącznie dla wypełnienia pokrycia BR-024.
+  severity: NON_BLOCKER
+  owner: Michał Wanielista
+  affected_refs: [FR-024]
+  status: OPEN
+  resolution: null
+section_notes:
+  assumptions: Nie zastosowano niepotwierdzonych założeń zamiast decyzji; niewiadome są pytaniami.
+  Changed: >-
+    Pierwsza propozycja eszkola-system-analysis revision 1; poprzedniego pliku
+    nie było. Zdefiniowano 24 FR, 9 NFR oraz wszystkie wymagane sekcje wspierające
+    i pokrycie BR-001–BR-026. Uwzględniono aktualny kanoniczny plan 2.0:
+    konfigurowalne ukończenie bez obowiązkowego egzaminu, wszystkie bezpłatne próby,
+    prowadzącego nauczyciela bez wymogu autorstwa, rezerwację maksymalnie 24 h,
+    proporcjonalny albo pełny zwrot, ważoną frekwencję i aktualne KPI.
+    Nie przyjęto wycofanych historycznych szczegółów. Status BLOCKED wynika
+    z SA-Q-001 i SA-Q-002, nie z braku aprobaty BA ani starego Q-016.
+    Rezerwacja kontrolera dotyczy wyłącznie wskazanego output; brak zmian w repozytorium.
+  Verification: >-
+    Odczytano Git status, branch feature/create-ba-bs, worktree list, AGENTS,
+    workflow, kontrakt i rolę SA, BA, aktualny plan, szablon i baseline.
+    Obejrzano diff i stat zmienionego biznesplanu; pełny diff był zbyt długi
+    do prezentacji, dlatego analizę oparto na aktualnych źródłach i zatwierdzonej BA.
+    shasum potwierdził dokładne SHA-256 BA i trzech źródeł z kontekstu kontrolera.
+    Zewnętrzny rekord aprobaty odczytano i porównano z dostarczonym dowodem,
+    embedded approval oraz artifact_id, path, revision i digest BA.
+    Powtórny odczyt digestów konsumowanych wejść nie wykazał zmian; output pozostał ABSENT.
+    Ręcznie sprawdzono pola kontraktu, unikalność ID, niepuste kryteria FR/NFR,
+    istniejące BR, source_refs, supporting requirement_refs, actor_refs,
+    affected_refs oraz zgodność pokrycia i statusu z pytaniami.
+    Jest to przegląd ręczny, nie wykonanie walidatora BA/SA ani dowód poprawności
+    analizy. Git zwracał wyniki mimo odmowy utworzenia cache xcrun.
+    Próba odczytu digestów przez heredoc została odrzucona przez sandbox;
+    użyto shasum bez zapisu. Zachowano zastane dirty changes innych autorów.
+  br_coverage: >-
+    Wszystkie 26 BR mają niepuste powiązania, ale pokrycie nie jest aprobatą
+    ani dowodem domknięcia każdego szczegółu. BR-001 i BR-014 pozostają częściowo
+    zależne od SA-Q-001; BR-004 i BR-018 od SA-Q-002. BR-020 zawiera także
+    obowiązki organizacyjne, których system jedynie odnotowuje spełnienie.
+    Ekonomika BR-024 jest walidacją właściciela, bez wymyślania automatyzacji
+    finansowej. BR-025 i BR-026 są pokryte NFR, nie sztucznymi funkcjami.
+    Brak niepokrytych BR; ograniczenia i otwarte szczegóły są jawnie wskazane.
+  Architecture_impact: >-
+    Wymagania mają znaczenie dla tożsamości i zasobowego dostępu, konfiguracji
+    edukacji, wersji i historii ocen, handlu, limitów konsultacji, plików,
+    integracji, audytu, KPI i odtworzenia. Nie zmieniono architektury ani ADR.
+    Baseline SR-03–SR-05 i dokumenty o dawnych regułach wymagają późniejszego
+    przeglądu wpływu; ich ID i linki pozostają zachowane. Dependent architectural
+    work jest zatrzymane do rozwiązania BLOCKER i aprobaty dokładnej SA.
+    Nie uruchomiono Architect, Planner, reviewer ani innego etapu.
+  Not_verified: >-
+    Nie wykonano automatycznego parsowania końcowej propozycji ani walidacji BA/SA;
+    nie uruchomiono factory ani architecture validator. Walidacja architektury
+    nie dowodzi poprawności analizy. Nie przeprowadzono testów aplikacji,
+    obciążenia, bezpieczeństwa, dostępności, odtworzenia, WCAG, przeglądu prawnego
+    lub podatkowego ani pomiaru KPI. Nie wykonano pełnego audytu Accepted ADR
+    ani migracji SR. Nie zweryfikowano niewidocznych sesji i nie ustanowiono
+    rezerwacji upstream poza przekazanym kontekstem. Kontroler musi ponownie
+    sprawdzić wejścia i ABSENT output bezpośrednio przed własnym zapisem;
+    ta propozycja nie zmienia ani nie zwalnia rezerwacji. Nie udzielono aprobaty SA.
+  handoff_gate: >-
+    BA input gate PASS: APPROVED revision 6, zgodny dokładny digest i zewnętrzny
+    dowód Michała Wanielisty, brak otwartych BA BLOCKER. SA status BLOCKED,
+    approval null. OPEN BLOCKER: SA-Q-001, SA-Q-002. OPEN NON_BLOCKER:
+    SA-Q-003–SA-Q-008, każde z uzasadnieniem, właścicielem i affected_refs.
+    Architect handoff FAIL: wymagane rzeczywiste odpowiedzi z dowodami,
+    przegląd uzupełnionej SA oraz zewnętrzna aprobata dokładnej rewizji.
+    Nie zatwierdzono własnego artefaktu i zakończono wyłącznie etap SA.
