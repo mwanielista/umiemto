@@ -12,6 +12,7 @@ from .config import safe_path
 
 
 EDGES = {
+    Stage.NOOP: {Stage.BA_APPROVAL},
     Stage.BUSINESS_ANALYSIS: {Stage.BA_APPROVAL},
     Stage.BA_APPROVAL: {Stage.SYSTEM_ANALYSIS},
     Stage.SYSTEM_ANALYSIS: {Stage.SA_APPROVAL},
@@ -21,7 +22,7 @@ EDGES = {
     Stage.ARCH_FIX: {Stage.ARCHITECTURE_REVIEW},
     Stage.ARCH_VALIDATION: {Stage.DONE},
 }
-TERMINALS = {Stage.DONE, Stage.BLOCKED, Stage.FAILED, Stage.HUMAN_REQUIRED}
+TERMINALS = {Stage.NOOP, Stage.DONE, Stage.BLOCKED, Stage.FAILED, Stage.HUMAN_REQUIRED}
 
 
 def atomic_write(path, content):
@@ -46,6 +47,27 @@ def atomic_write(path, content):
 
 def write_json(path, value):
     atomic_write(path, (json.dumps(value, indent=2, ensure_ascii=False) + "\n").encode())
+
+
+def atomic_create(path, content):
+    """Publish complete immutable bytes without replacing an existing file."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(dir=path.parent, prefix=".pending-")
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(content)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.link(name, path)
+        dir_fd = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(dir_fd)
+        finally:
+            os.close(dir_fd)
+    finally:
+        if os.path.exists(name):
+            os.unlink(name)
 
 
 class StateStore:
@@ -75,7 +97,7 @@ class StateStore:
         try:
             state = PipelineState(**json.loads(self.path.read_text()))
             Stage(state.stage)
-            if state.status not in {"PENDING", "RUNNING", "WAITING_FOR_APPROVAL", "DONE", "BLOCKED", "FAILED", "HUMAN_REQUIRED", "STALE"}:
+            if state.status not in {"PENDING", "RUNNING", "WAITING_FOR_APPROVAL", "DONE", "BLOCKED", "FAILED", "HUMAN_REQUIRED", "STALE", "NOOP"}:
                 raise ValueError("Invalid status")
             if type(state.attempt) is not int or not 1 <= state.attempt <= 3:
                 raise ValueError("Invalid review attempt")

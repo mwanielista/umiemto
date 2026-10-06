@@ -8,7 +8,7 @@ import yaml
 from .agents import CodexAgentRunner
 from .artifacts import load_artifact, validate_artifact
 from .exceptions import PipelineError
-from .config import safe_path
+from .config import Config, safe_path
 from .gates import ba_gate, sa_gate
 from .models import Stage
 from .pipeline import BA_PATH, SA_PATH, Pipeline
@@ -33,11 +33,14 @@ def approve(pipeline, short, owner, confirm=input, output=print):
         git_context = inspect_git(pipeline.root)
         if git_context["branch"] in {"main", "master", ""}:
             raise PipelineError("Approval writes require the feature branch")
-        if state.config_digest != pipeline.config.digest or state.inputs["sources"] != pipeline.source_snapshot():
+        pipeline.config = Config(pipeline.root)
+        if (state.config_digest != pipeline.config.digest or state.inputs["sources"] != pipeline.source_snapshot()
+                or (state.inputs.get("input_digest") and state.inputs["input_digest"] != pipeline.input_digest())):
             raise PipelineError("Configuration/business sources changed; reset analysis before approval")
         path = safe_path(pipeline.root, BA_PATH if short == "ba" else SA_PATH)
         ba = ba_gate(pipeline.root / BA_PATH, pipeline.approvals) if short == "sa" else None
         artifact = ba_gate(path, pipeline.approvals, False) if short == "ba" else sa_gate(path, pipeline.root / BA_PATH, pipeline.approvals, False)
+        pipeline.assert_analysis_candidate(state, artifact, short, require_approval=False)
         try:
             pipeline.approvals.validate(artifact)
             output("Approval already VALID for this exact artifact")
@@ -53,8 +56,10 @@ def approve(pipeline, short, owner, confirm=input, output=print):
         if confirm("Approve this exact candidate revision? [y/N] ").strip().lower() != "y":
             output("Approval cancelled; nothing written")
             return
-        if state.inputs["sources"] != pipeline.source_snapshot():
-            raise PipelineError("Business sources changed during confirmation")
+        if (state.inputs["sources"] != pipeline.source_snapshot()
+                or state.config_digest != Config(pipeline.root).digest
+                or (state.inputs.get("input_digest") and state.inputs["input_digest"] != pipeline.input_digest())):
+            raise PipelineError("Business sources/configuration/analysis inputs changed during confirmation")
         pipeline.assert_git_identity(git_context)
         if ba:
             current_ba = ba_gate(pipeline.root / BA_PATH, pipeline.approvals)
@@ -143,7 +148,9 @@ def main(argv=None):
     parser.add_argument("--root", type=Path, default=Path.cwd())
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("analyze", "resume", "status", "reset", "history"):
-        commands.add_parser(name)
+        command = commands.add_parser(name)
+        if name == "analyze":
+            command.add_argument("--full", action="store_true", help="Force full BA/SA reanalysis")
     approval = commands.add_parser("approve")
     approval.add_argument("artifact", choices=("ba", "sa"))
     approval.add_argument("--owner", help="Designated human owner label; default BUSINESS_OWNER/REQUIREMENTS_OWNER")
@@ -156,7 +163,7 @@ def main(argv=None):
                 raise PipelineError("Human approval requires an interactive terminal; no --yes or piped approval")
             approve(pipeline, args.artifact, args.owner or ("BUSINESS_OWNER" if args.artifact == "ba" else "REQUIREMENTS_OWNER"))
         elif args.command in {"analyze", "resume"}:
-            state = getattr(pipeline, args.command)()
+            state = pipeline.analyze(full=args.full) if args.command == "analyze" else pipeline.resume()
             print(status(pipeline))
             return 1 if state.status == "STALE" or state.stage in {Stage.FAILED, Stage.BLOCKED, Stage.HUMAN_REQUIRED} else 0
         elif args.command == "status":

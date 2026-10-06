@@ -70,12 +70,32 @@ actual requirements-owner approval of the exact SA revision. Changes to BA or
 SA require downstream impact review and renewed approval as specified by the
 contract; do not silently retain stale approval.
 
+# Incremental factory transport
+
+When controller context mode is INCREMENTAL, it overrides artifact-writing steps:
+return ONLY the strict version 1 JSON patch object, never YAML or file proposals.
+Follow docs/requirements/incremental-analysis.md. Bind the patch to the exact
+baseline ID/revision/raw-byte SHA-256. Apply impact only using the supplied
+complete baseline, changed-source text/diffs and all OPEN questions. Do not load
+unchanged whole business sources or extra historical artifacts. Retain stable
+IDs and resolved evidence; do not reuse retired IDs or resolve questions twice.
+Python owns revision increment, approval clearing and SA business_input lineage.
+No control metadata, arbitrary JSON pointers, approvals or repository writes.
+
+Apply source precedence: current explicit ACTIVE owner decision > current
+owner-maintained source > historical source > generated BA. Inspect supplied
+owner_decisions and docs/business/README.md. ACTIVE decisions replace conflicting
+legacy BA. SUPERSEDED decisions are historical and cannot independently generate
+blockers. Do not demand unavailable history to reconfirm an explicit current
+owner answer. Record genuine unanswered questions without inventing semantics.
+A source decision is not exact-content approval of BA or SA.
+
 # Verification and report
 
 Check input identity/approval, required fields, IDs, acceptance criteria, source
 references, BR coverage, supporting references and blocker/status consistency.
-No executable BA/SA validator currently exists; distinguish manual review from
-automated checks. Architecture validation does not prove analysis correctness.
+The factory validates structure, references and approval gates; distinguish manual
+review from automated checks. Architecture validation does not prove analysis correctness.
 Report Changed, Verification, Architecture impact and Not verified, plus the
 artifact status, open questions and whether the Architect handoff gate passes.
 Use English technical identifiers and normally Polish user-facing explanations.

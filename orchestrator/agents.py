@@ -8,8 +8,10 @@ import time
 import tomllib
 from pathlib import Path
 
-from .exceptions import AgentExecutionError
+from .exceptions import AgentExecutionError, PipelineError
 from .models import AgentResult
+from .patches import check_schema, patch_schema
+from .sources import POLICY
 
 
 class AgentRunner(ABC):
@@ -39,6 +41,15 @@ class FakeAgentRunner(AgentRunner):
             result = result(context)
 
         return result
+
+
+def unique_json_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("Duplicate JSON key")
+        result[key] = value
+    return result
 
 
 ROLE_FILES = {
@@ -164,9 +175,6 @@ class CodexAgentRunner(AgentRunner):
     def _terminate_process_group(process):
         """Terminate Codex and all subprocesses started by it."""
 
-        if process.poll() is not None:
-            return
-
         try:
             os.killpg(process.pid, signal.SIGTERM)
         except ProcessLookupError:
@@ -174,7 +182,6 @@ class CodexAgentRunner(AgentRunner):
 
         try:
             process.wait(timeout=3)
-            return
         except subprocess.TimeoutExpired:
             pass
 
@@ -193,81 +200,45 @@ class CodexAgentRunner(AgentRunner):
 
         try:
             process = subprocess.Popen(
-                command,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                cwd=self.root,
-                start_new_session=True,
+                command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE, text=True, cwd=self.root, start_new_session=True,
             )
         except OSError as error:
-            raise AgentExecutionError(
-                f"Unable to start Codex for {agent}: {error}"
-            ) from error
-
+            raise AgentExecutionError("CODEX_START_FAILED") from error
         try:
-            self._report(agent, started)
-
-            # Send stdin exactly once and close it.
-            assert process.stdin is not None
-
-            try:
-                process.stdin.write(prompt)
-                process.stdin.close()
-            except (BrokenPipeError, OSError):
-                # Codex may have failed before reading stdin.
-                pass
-
-            while process.poll() is None:
+            pending_input = prompt
+            while True:
                 elapsed = time.monotonic() - started
-
                 if elapsed >= self.timeout:
                     self._report(agent, started, "timeout")
-                    self._terminate_process_group(process)
-
-                    raise subprocess.TimeoutExpired(
-                        command,
-                        self.timeout,
-                    )
-
+                    raise subprocess.TimeoutExpired(command, self.timeout)
                 self._report(agent, started)
-
-                sleep_for = min(
-                    self.progress_interval,
-                    max(0.05, self.timeout - elapsed),
-                )
-                time.sleep(sleep_for)
-
-            assert process.stdout is not None
-            assert process.stderr is not None
-
-            stdout = process.stdout.read()
-            stderr = process.stderr.read()
-
-            status = "finished" if process.returncode == 0 else "failed"
-            self._report(agent, started, status)
-
-            return subprocess.CompletedProcess(
-                command,
-                process.returncode,
-                stdout,
-                stderr,
-            )
-
+                try:
+                    stdout, stderr = process.communicate(
+                        input=pending_input,
+                        timeout=min(self.progress_interval, max(.001, self.timeout - elapsed)),
+                    )
+                    self._report(agent, started, "finished" if process.returncode == 0 else "failed")
+                    return subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
+                except subprocess.TimeoutExpired:
+                    pending_input = None
         except KeyboardInterrupt:
             self._terminate_process_group(process)
             self._report(agent, started, "interrupted")
             raise
-
         except subprocess.TimeoutExpired:
             self._terminate_process_group(process)
             raise
-
         except BaseException:
             self._terminate_process_group(process)
             self._report(agent, started, "failed")
             raise
+        finally:
+            # Clean descendants even after normal exits with closed inherited pipes.
+            self._terminate_process_group(process)
+            for stream in (process.stdin, process.stdout, process.stderr):
+                if stream is not None:
+                    stream.close()
 
     @staticmethod
     def _parse_events(stdout: str) -> list[dict]:
@@ -280,7 +251,7 @@ class CodexAgentRunner(AgentRunner):
                 continue
 
             try:
-                event = json.loads(line)
+                event = json.loads(line, object_pairs_hook=unique_json_object)
             except json.JSONDecodeError as error:
                 raise ValueError(
                     f"Invalid Codex JSON event on line {line_number}: "
@@ -301,37 +272,9 @@ class CodexAgentRunner(AgentRunner):
 
     @staticmethod
     def _extract_runtime_error(events: list[dict]) -> str | None:
-        """Extract a safe diagnostic from structured Codex events."""
-
-        for event in reversed(events):
-            event_type = event.get("type")
-
-            if event_type not in {"error", "turn.failed"}:
-                continue
-
-            error = event.get("error")
-
-            if isinstance(error, dict):
-                message = (
-                    error.get("message")
-                    or error.get("code")
-                    or error.get("type")
-                )
-
-                if message:
-                    return str(message)[:500]
-
-            if isinstance(error, str):
-                return error[:500]
-
-            message = event.get("message")
-
-            if isinstance(message, str):
-                return message[:500]
-
-            return event_type
-
-        return None
+        # Provider messages may contain secrets. Persist only fixed event types.
+        return next((event["type"] for event in events
+                     if event.get("type") in {"error", "turn.failed"}), None)
 
     @staticmethod
     def _extract_report(events: list[dict]) -> dict:
@@ -366,7 +309,7 @@ class CodexAgentRunner(AgentRunner):
 
         for message in reversed(messages):
             try:
-                report = json.loads(message)
+                report = json.loads(message, object_pairs_hook=unique_json_object)
             except json.JSONDecodeError as error:
                 last_error = error
                 continue
@@ -423,7 +366,7 @@ class CodexAgentRunner(AgentRunner):
 
             if path in paths:
                 raise ValueError(
-                    f"Duplicate proposal path: {path}"
+                    "Duplicate proposal path"
                 )
 
             paths.add(path)
@@ -555,6 +498,13 @@ in addition to embedded artifact metadata.
 No tool may write to the repository.
 """
 
+        if agent in {"business-analyst", "system-analyst"}:
+            protocol += "\nAnalysis source policy:\n" + POLICY
+        incremental = agent in {"business-analyst", "system-analyst"} and (context or {}).get("mode") == "INCREMENTAL"
+        output_schema = patch_schema("business_analysis" if agent == "business-analyst" else "system_analysis") if incremental else RESPONSE_SCHEMA
+        if incremental:
+            protocol += "\nINCREMENTAL overrides full-file transport and role write instructions: return ONLY the strict JSON patch object, no files, review, YAML or control metadata. Apply impact only using supplied baseline, delta and open questions. Do not load unchanged business sources or history.\n"
+
         with tempfile.TemporaryDirectory(
             prefix="factory-codex-"
         ) as temporary:
@@ -562,7 +512,7 @@ No tool may write to the repository.
 
             schema.write_text(
                 json.dumps(
-                    RESPONSE_SCHEMA,
+                    output_schema,
                     ensure_ascii=False,
                 ),
                 encoding="utf-8",
@@ -630,13 +580,12 @@ No tool may write to the repository.
 
             except subprocess.TimeoutExpired as error:
                 raise AgentExecutionError(
-                    f"Codex {agent} timed out after "
-                    f"{self.timeout:g}s"
+                    "CODEX_TIMEOUT"
                 ) from error
 
             except OSError as error:
                 raise AgentExecutionError(
-                    f"Codex {agent} unavailable: {error}"
+                    "CODEX_START_FAILED"
                 ) from error
 
             # Parse structured events even when Codex exits non-zero.
@@ -652,29 +601,11 @@ No tool may write to the repository.
                     # Exit-code handling below still gives us a useful
                     # classification based on stderr.
                     if process.returncode == 0:
-                        raise
+                        raise AgentExecutionError("CODEX_INVALID_OUTPUT: JSON events") from None
 
             if process.returncode != 0:
-                runtime_error = (
-                    self._extract_runtime_error(events)
-                    if events
-                    else None
-                )
-
-                hint = self._safe_failure_hint(
-                    process.stderr
-                )
-
-                detail = (
-                    f": {runtime_error}"
-                    if runtime_error
-                    else ""
-                )
-
-                raise AgentExecutionError(
-                    f"Codex {agent} exited "
-                    f"{process.returncode} ({hint}){detail}"
-                )
+                hint = self._safe_failure_hint(process.stderr)
+                raise AgentExecutionError(f"CODEX_EXIT_FAILED: {hint}")
 
             try:
                 runtime_error = self._extract_runtime_error(
@@ -689,6 +620,9 @@ No tool may write to the repository.
 
                 report = self._extract_report(events)
 
+                if incremental:
+                    check_schema(report, output_schema)
+                    return AgentResult(patch=report)
                 self._validate_report(report)
 
                 files = {
@@ -706,8 +640,8 @@ No tool may write to the repository.
                 KeyError,
                 TypeError,
                 IndexError,
+                PipelineError,
             ) as error:
                 raise AgentExecutionError(
-                    f"Invalid Codex {agent} output: "
-                    f"{error}"
+                    "CODEX_INVALID_OUTPUT: " + ("Duplicate proposals" if "Duplicate proposal" in str(error) else "response validation failed")
                 ) from error

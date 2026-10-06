@@ -8,6 +8,7 @@ def now():
 
 
 class Stage(StrEnum):
+    NOOP = "NOOP"
     BUSINESS_ANALYSIS = "BUSINESS_ANALYSIS"
     BA_APPROVAL = "BA_APPROVAL"
     SYSTEM_ANALYSIS = "SYSTEM_ANALYSIS"
@@ -26,6 +27,7 @@ class Stage(StrEnum):
 class AgentResult:
     files: dict[str, str] = field(default_factory=dict)
     review: dict | None = None
+    patch: dict | None = None
 
 
 @dataclass

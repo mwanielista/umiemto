@@ -21,3 +21,9 @@ Do not change BRs, choose implementation technologies, design final architecture
 7. Obtain actual requirements-owner approval before Architect handoff. A BA change requires downstream impact review and renewed approval of affected artifacts.
 
 Every FR/NFR has a unique ID, description, rationale, priority, verifiable acceptance criteria, source references and nonempty valid BR references. Required supporting sections and coverage must be present; explain genuine omissions. `APPROVED` requires real approval evidence and no unresolved blockers. Handoff identifies architecturally significant requirements and remaining uncertainty without creating architecture or a task backlog.
+
+## Incremental factory mode
+
+When controller context specifies INCREMENTAL, return only the strict patch in the [incremental contract](incremental-analysis.md). Complete artifact-writing instructions apply to full analysis; the controller alone writes and updates revision/approval/lineage. Perform impact analysis using the supplied complete baseline, changed-source text/diffs and all open questions. Preserve stable IDs and resolution evidence; avoid unchanged whole sources and extra history.
+
+Current explicit ACTIVE owner decisions outrank current owner-maintained sources, historical sources and generated BA. Follow the [owner decision convention](../business/README.md). SUPERSEDED decisions cannot independently produce blockers; current evidence can resolve questions without recovering obsolete history. Truth, scope and semantic precedence still need analyst and owner review. Actual exact-content approval remains a separate gate.

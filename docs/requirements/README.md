@@ -14,7 +14,7 @@ Outputs belong directly in `docs/requirements/business-analysis.yaml` and `docs/
 
 ## Machine-readable artifact contract, version 1
 
-This is a documented YAML/JSON specification, not an executable JSON Schema. Field names use English. Each output is an object with the following required fields; lists are arrays, textual fields are nonempty strings unless explicitly nullable.
+This documents the YAML/JSON artifact specification. The factory validates artifact contracts; its [incremental transport](incremental-analysis.md) has a separate executable strict JSON Schema with closed BA/SA entry shapes. Field names use English. Each output is an object with the following required fields; lists are arrays, textual fields are nonempty strings unless explicitly nullable.
 
 | Field | Shape and meaning |
 | --- | --- |
@@ -56,3 +56,7 @@ The factory preserves version 1 fields and `business_input` lineage. Before huma
 Factory validates required fields/types, nonempty requirement criteria/sources, unique IDs, references, complete BR coverage, approved BA identity, external approval binding and blocker/status consistency. Negative tests cover dangling BRs, duplicate IDs, stale approvals/digests, blockers and missing criteria. Source truth, stable ID meaning across revisions, absence of disguised design/task content and semantic role boundaries still require human review.
 
 The existing `docs/architecture/validation/check_baseline.py` verifies target architecture model/ADRs/local document links only. Factory separately enforces artifact contracts, approval gates and BA/SA traceability; the baseline checker does not replace those checks.
+
+## Incremental transport and owner sources
+
+[Incremental BA/SA contract](incremental-analysis.md) defines closed bounded operations, exact baseline identity, stable IDs and atomic validation. [ADR-0008](../architecture/decisions/0008-incremental-analysis-patches.md) extends ADR-0007 for incremental analysis only. [Owner decisions](../business/README.md) are a required configured owner-maintained source, initially empty. Generated BA/SA, runtime and architecture outputs must not be configured as business sources. Legacy artifacts are adopted byte-for-byte with UNKNOWN historical snapshots; no implied approval or historical hashes are created.

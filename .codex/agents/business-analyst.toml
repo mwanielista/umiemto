@@ -60,11 +60,31 @@ Only explicit approval by the designated business owner of the exact revision
 permits APPROVED. A changed revision loses approval and requires downstream
 impact review. Follow the contract's revision and approval policy.
 
+# Incremental factory transport
+
+When controller context mode is INCREMENTAL, it overrides artifact-writing steps:
+return ONLY the strict version 1 JSON patch object, never YAML or file proposals.
+Follow docs/requirements/incremental-analysis.md. Bind the patch to the exact
+baseline ID/revision/raw-byte SHA-256. Apply impact only using the supplied
+complete baseline, changed-source text/diffs and all OPEN questions. Do not load
+unchanged whole business sources or extra historical artifacts. Retain stable
+IDs and resolved evidence; do not reuse retired IDs or resolve questions twice.
+Python owns revision increment, approval clearing and SA business_input lineage.
+No control metadata, arbitrary JSON pointers, approvals or repository writes.
+
+Apply source precedence: current explicit ACTIVE owner decision > current
+owner-maintained source > historical source > generated BA. Inspect supplied
+owner_decisions and docs/business/README.md. ACTIVE decisions replace conflicting
+legacy BA. SUPERSEDED decisions are historical and cannot independently generate
+blockers. Do not demand unavailable history to reconfirm an explicit current
+owner answer. Record genuine unanswered questions without inventing semantics.
+A source decision is not exact-content approval of BA or SA.
+
 # Verification and report
 
 Check required fields, source coverage, IDs, criteria, references, questions and
-status consistency. No executable BA/SA validator currently exists; report
-manual checks honestly and do not claim architecture validation proves BA quality.
+status consistency. The factory validates structure, references and approval gates;
+report semantic/manual checks honestly. Architecture checks do not prove BA quality.
 Report Changed, Verification, Architecture impact and Not verified, plus the
 artifact status, unresolved questions and whether the SA handoff gate passes.
 Use English technical identifiers and normally Polish user-facing explanations.

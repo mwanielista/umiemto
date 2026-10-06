@@ -80,8 +80,18 @@ class Config:
         self.sources = d.get("business_sources")
         if not isinstance(self.sources, list) or not self.sources:
             raise PipelineError("Business sources required")
+        if not all(isinstance(source, str) for source in self.sources):
+            raise PipelineError("Business source paths must be strings")
+        if len(set(self.sources)) != len(self.sources):
+            raise PipelineError("Duplicate business source")
+        if "docs/business/product-decisions.yaml" not in self.sources:
+            raise PipelineError("Owner decision registry must be configured")
         for source in self.sources:
             safe_path(self.root, source)
+            if source.startswith((".orchestrator/", "docs/architecture/")) or source in {
+                "docs/requirements/business-analysis.yaml", "docs/requirements/system-analysis.yaml"
+            }:
+                raise PipelineError("INVALID_GENERATED_ARTIFACT: business source")
 
     def agent(self, stage):
         return self.data["stages"][stage]["agent"]

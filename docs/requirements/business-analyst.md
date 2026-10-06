@@ -21,3 +21,9 @@ Do not design architecture, choose technologies, create database models or REST 
 7. Incorporate actual owner answers in a new revision. Record explicit business-owner approval of the exact content only when provided, then hand that revision to SA.
 
 Required sections must be present; explain genuinely empty sections. Questions retain resolution evidence; unsupported scope remains excluded. `APPROVED` requires real approval evidence and no unresolved blockers. Report source coverage, questions, status and unverified areas. Syntactic validity alone does not establish business correctness or approval.
+
+## Incremental factory mode
+
+When controller context specifies INCREMENTAL, return only the strict patch in the [incremental contract](incremental-analysis.md). Complete artifact-writing instructions apply to full analysis; the controller alone writes and updates revision/approval/lineage. Perform impact analysis using the supplied complete baseline, changed-source text/diffs and all open questions. Preserve stable IDs and resolution evidence; avoid unchanged whole sources and extra history.
+
+Current explicit ACTIVE owner decisions outrank current owner-maintained sources, historical sources and generated BA. Follow the [owner decision convention](../business/README.md). SUPERSEDED decisions cannot independently produce blockers; current evidence can resolve questions without recovering obsolete history. Truth, scope and semantic precedence still need analyst and owner review. Actual exact-content approval remains a separate gate.

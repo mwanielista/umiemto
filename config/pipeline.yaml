@@ -2,6 +2,7 @@ version: 1
 pipeline:
   name: requirements-to-architecture
 business_sources:
+  - docs/business/product-decisions.yaml
   - docs/biznesplan-platforma-kursy-dla-dzieci.md
   - docs/szablon-programu-edukacyjnego-modul-4-zajecia.md
   - AGENTS.md

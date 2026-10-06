@@ -8,7 +8,8 @@ from .artifacts import Artifact, digest_bytes, load_artifact, load_yaml, validat
 from .exceptions import ApprovalError, ConcurrencyError
 from .models import now
 from .config import safe_path
-from .state import atomic_write
+from .state import atomic_create, atomic_write
+from .provenance import ProvenanceStore
 
 
 class ApprovalStore:
@@ -75,12 +76,14 @@ class ApprovalStore:
                                "revision": candidate.revision, "digest": digest_bytes(candidate.raw)},
                   "approval": {"status": "APPROVED", "approved_by": candidate.data["approval"]["owner"],
                                "approved_at": candidate.data["approval"]["approved_at"]}}
+        archive = ProvenanceStore(self.root)
+        archive.approved(original, candidate)
+        evidence_raw = yaml.safe_dump(record, sort_keys=False).encode()
+        archive.immutable(archive.path("approvals", digest_bytes(evidence_raw), "yaml"), evidence_raw)
         atomic_write(candidate.path, candidate.raw)
         # If interrupted between writes, an embedded APPROVED alone never passes a gate.
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open("xb") as stream:
-            stream.write(yaml.safe_dump(record, sort_keys=False).encode())
-            stream.flush()
-            import os
-            os.fsync(stream.fileno())
+        try:
+            atomic_create(path, evidence_raw)
+        except FileExistsError:
+            raise ApprovalError("Approval record already exists; inspect concurrent writers") from None
         return record

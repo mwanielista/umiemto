@@ -48,10 +48,15 @@ class FactoryTest(unittest.TestCase):
         self.approvals = ApprovalStore(self.root)
         repository = Path(__file__).resolve().parents[1]
         shutil.copytree(repository / "config", self.root / "config")
+        shutil.copytree(repository / "orchestrator", self.root / "orchestrator", ignore=shutil.ignore_patterns("__pycache__"))
+        shutil.copytree(repository / "docs/business", self.root / "docs/business")
+        shutil.copytree(repository / ".codex/agents", self.root / ".codex/agents")
         shutil.copytree(repository / "docs/architecture", self.root / "docs/architecture")
         shutil.copytree(repository / "docs/requirements", self.root / "docs/requirements")
         for relative in ("AGENTS.md", "workflow.md", "docs/orchestrator.md", "docs/biznesplan-platforma-kursy-dla-dzieci.md", "docs/szablon-programu-edukacyjnego-modul-4-zajecia.md"):
             shutil.copyfile(repository / relative, self.root / relative)
+        # Bootstrap tests require absence; legacy adoption has its own tests.
+        (self.root / BA_PATH).unlink(missing_ok=True)
         subprocess.run(["git", "init", "-b", "feature/test", str(self.root)], check=True, capture_output=True)
         subprocess.run(["git", "-C", str(self.root), "-c", "user.name=Test", "-c", "user.email=test@example.invalid", "commit", "--allow-empty", "-m", "Test baseline"], check=True, capture_output=True)
 
@@ -249,6 +254,10 @@ class FactoryTest(unittest.TestCase):
             return "y"
         with self.assertRaises(ConcurrencyError):
             approve(p, "ba", "OWNER", confirm=concurrent, output=lambda _: None)
+        with self.assertRaises(GateError):
+            approve(p, "ba", "OWNER", confirm=lambda _: "y", output=lambda _: None)
+        # Deliberately restore the exact pinned candidate after the concurrent edit.
+        a.path.write_bytes(a.raw)
         approve(p, "ba", "OWNER", confirm=lambda _: "y", output=lambda _: None)
         self.assertTrue(self.approvals.path(load_artifact(a.path)).exists())
         with p.store.lock():
