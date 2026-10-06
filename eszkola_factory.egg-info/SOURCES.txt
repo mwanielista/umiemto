@@ -16,6 +16,7 @@ orchestrator/gates.py
 orchestrator/git_utils.py
 orchestrator/models.py
 orchestrator/pipeline.py
+orchestrator/progress.py
 orchestrator/smoke.py
 orchestrator/state.py
 tests/test_codex_runner.py

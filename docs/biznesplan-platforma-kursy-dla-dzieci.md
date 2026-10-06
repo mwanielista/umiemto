@@ -871,3 +871,177 @@ Nie należy traktować płatnych poprawek jako istotnego źródła zysku. Ich ro
 **Minimalna próba:** 100 wartościowych wejść, 20 rozmów, 10 płatnych zapisów.  
 **Sukces:** konwersja do płatności na ustalonym poziomie, minimum 70% ukończeń i minimum 40% deklaracji popartej zakupem kolejnego modułu.  
 **Decyzja:** rozwijać, zmienić cenę/segment/ofertę albo zatrzymać.
+
+
+# Ostateczne rozstrzygnięcie brakujących decyzji biznesowych — Q-016
+
+Ja, Michał Wanielista, jako jednoosobowy Business Owner, Product Owner i Requirements Owner produktu eSzkola, podejmuję poniższe decyzje jako aktualne i wiążące.
+
+Niniejsza sekcja jest bezpośrednim źródłem biznesowym i zastępuje brakujące, historyczne lub niejednoznaczne ustalenia dotyczące poniższych zagadnień.
+
+## 1. Wyjątki od progresji i uprawnienia
+
+Wyjątek od skonfigurowanych warunków progresji może przyznać:
+
+- nauczyciel będący właścicielem danego programu,
+- administrator,
+- Michał Wanielista jako właściciel biznesowy.
+
+Sama rola metodyka nie daje automatycznie prawa do przyznawania wyjątków.
+
+Każdy wyjątek musi pozostawiać ślad audytowy zawierający co najmniej osobę podejmującą decyzję, czas oraz powód.
+
+## 2. Waluta i ceny
+
+Na etapie MVP sprzedaż prowadzona jest w PLN.
+
+Cena programu, modułu lub innego sprzedawanego elementu nie jest stałą globalną i musi być konfigurowalna.
+
+Wszystkie poprawki egzaminów są bezpłatne.
+
+Obsługa innych walut nie należy do zakresu MVP.
+
+## 3. Klient kwalifikujący się do kontynuacji
+
+Klient kwalifikujący się do kontynuacji to klient, którego dziecko:
+
+- posiada aktywne lub zakończone uczestnictwo w programie,
+- spełniło skonfigurowane warunki umożliwiające rozpoczęcie kolejnego płatnego etapu,
+- posiada dostępny kolejny płatny etap lub program będący logiczną kontynuacją.
+
+Okno 60 dni dla KPI zakupu kontynuacji rozpoczyna się w momencie, w którym uczestnik po raz pierwszy spełni wszystkie warunki umożliwiające zakup tej kontynuacji.
+
+## 4. Ukończenie programu lub modułu
+
+Nauczyciel podczas publikacji programu definiuje kryteria ukończenia.
+
+Program lub moduł może wymagać:
+
+- egzaminu,
+- wykonania określonych zadań,
+- osiągnięcia określonego wyniku,
+- uczestnictwa w określonych zajęciach,
+- kombinacji powyższych warunków,
+- albo nie wymagać dodatkowego warunku poza realizacją wymaganych elementów programu.
+
+System nie narzuca globalnie egzaminu jako warunku ukończenia.
+
+Uczestnik jest uznawany za osobę, która ukończyła program lub moduł, kiedy spełni wszystkie kryteria ukończenia skonfigurowane dla jego wersji programu.
+
+## 5. Agregacja frekwencji
+
+Frekwencja pojedynczego uczestnika jest liczona jako:
+
+liczba zajęć live, w których uczestnik brał udział / liczba zaplanowanych dla niego zajęć live.
+
+Średnia frekwencja pilota jest liczona jako:
+
+łączna liczba obecności uczestników / łączna liczba zaplanowanych obecności uczestników.
+
+Do mianownika wliczane są wyłącznie zajęcia, które faktycznie powinny się odbyć.
+
+Zajęcia odwołane przez organizatora i przełożone nie są liczone jako nieobecność uczestnika.
+
+## 6. Pomiar satysfakcji
+
+Ankieta satysfakcji jest wysyłana po zakończeniu programu lub modułu będącego przedmiotem pomiaru.
+
+Podstawową grupą badaną są opiekunowie uczestników, którzy rozpoczęli mierzony program lub moduł.
+
+Satysfakcja jest oceniana w skali 1–5.
+
+Raport zawiera co najmniej:
+
+- średnią ocenę,
+- liczbę wysłanych ankiet,
+- liczbę odpowiedzi,
+- response rate.
+
+Cel MVP wynosi średnio co najmniej 4,2/5.
+
+## 7. Zakres dostępności 99,5%
+
+Cel dostępności 99,5% miesięcznie dotyczy podstawowych funkcji produkcyjnych wymaganych do korzystania z eSzkola, w szczególności:
+
+- logowania i uwierzytelnienia,
+- panelu uczestnika i opiekuna,
+- dostępu do zakupionych programów i materiałów,
+- obsługi uczestnictwa w programie,
+- dostępu do harmonogramu i informacji o zajęciach,
+- realizacji procesu oceniania i progresji,
+- konsultacji przez platformę,
+- podstawowych funkcji nauczyciela potrzebnych do prowadzenia aktywnych programów.
+
+Awaria jednej z tych funkcji, która uniemożliwia realizację podstawowego procesu użytkownika, jest traktowana jako niedostępność odpowiedniej części usługi.
+
+Zapowiedziane prace serwisowe są wyłączone z tego celu, jeżeli użytkownicy zostali poinformowani co najmniej 24 godziny wcześniej.
+
+## 8. Zmiana warunków po zakupie
+
+Zmiana istotnych warunków zakupionego programu, która pogarsza sytuację uczestnika, wymaga akceptacji opiekuna.
+
+Jeżeli opiekun nie zaakceptuje takiej zmiany i nie jest możliwe wykonanie usługi na pierwotnych warunkach, może wybrać odpowiednią alternatywną grupę/program albo pełny zwrot niewykorzystanej części świadczenia.
+
+Szczegółowe zasady konsumenckie podlegają przeglądowi prawnemu przed sprzedażą.
+
+## 9. Podejrzenie niesamodzielności
+
+Jeżeli wynik egzaminu lub zadania zostanie oznaczony jako wymagający weryfikacji z powodu podejrzenia niesamodzielności, wynik nie może zostać uznany za finalnie zatwierdzony do czasu zakończenia ręcznej weryfikacji.
+
+Ręcznej weryfikacji dokonuje uprawniony nauczyciel lub administrator.
+
+Decyzja i jej uzasadnienie muszą pozostawić ślad audytowy.
+
+## 10. Informowanie o zmianach zajęć
+
+O zmianie terminu, odwołaniu lub istotnej zmianie organizacyjnej zajęć uczestnik i jego opiekun powinni zostać poinformowani przez platformę niezwłocznie po podjęciu decyzji przez organizatora.
+
+System nie ustanawia globalnego gwarantowanego SLA dla takiego powiadomienia na etapie MVP poza wymaganiem niezwłocznego działania.
+
+## 11. Oświadczenie opiekuna
+
+Osoba zakładająca konto opiekuna oświadcza, że:
+
+- jest pełnoletnia,
+- jest uprawniona do zarządzania kontem dziecka w zakresie wymaganym do korzystania z usługi,
+- podane przez nią informacje są prawdziwe.
+
+Szczegółowa forma oświadczenia i wymagane zgody zostaną zweryfikowane prawnie przed produkcją.
+
+## 12. Wymagania wobec nauczyciela
+
+Przed dopuszczeniem nauczyciela do kontaktu z dziećmi organizator musi zapewnić wymagane prawem:
+
+- weryfikacje,
+- dokumenty,
+- zapoznanie ze standardami ochrony małoletnich,
+- zaakceptowanie zasad komunikacji,
+- wymagane szkolenia dotyczące bezpieczeństwa i ochrony małoletnich.
+
+Dokładny zakres weryfikacji, dokumentów i szkoleń wynika z obowiązującego prawa oraz procedur organizacji i zostanie zatwierdzony przed rozpoczęciem świadczenia usługi.
+
+Nie jest to blocker System Analysis.
+
+## 13. Pierwszeństwo niniejszych decyzji
+
+Powyższe decyzje są aktualnym źródłem prawdy dla wymienionych zagadnień.
+
+Jeżeli wcześniejsze:
+
+- Business Analysis,
+- business plan,
+- szablony,
+- odpowiedzi Q-001–Q-015,
+- historyczne pliki,
+- przykłady,
+- założenia
+
+są z nimi sprzeczne, obowiązuje niniejsza decyzja oraz aktualny AGENTS.md.
+
+Nie wymagam odzyskania historycznej sekcji „Aktualizacja decyzji biznesowych Q-001–Q-014”.
+
+W zakresie objętym niniejszą decyzją historyczne ustalenia niewymienione jako obowiązujące nie stanowią samodzielnych wymagań biznesowych.
+
+Q-016 należy oznaczyć jako RESOLVED.
+
+Po uwzględnieniu tej decyzji brakujące historyczne źródła nie mogą samodzielnie stanowić podstawy do utworzenia kolejnego BLOCKER-a, jeżeli dane zagadnienie zostało jednoznacznie rozstrzygnięte przez aktualne źródła biznesowe.
