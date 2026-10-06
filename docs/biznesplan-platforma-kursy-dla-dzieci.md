@@ -1045,3 +1045,23 @@ W zakresie objętym niniejszą decyzją historyczne ustalenia niewymienione jako
 Q-016 należy oznaczyć jako RESOLVED.
 
 Po uwzględnieniu tej decyzji brakujące historyczne źródła nie mogą samodzielnie stanowić podstawy do utworzenia kolejnego BLOCKER-a, jeżeli dane zagadnienie zostało jednoznacznie rozstrzygnięte przez aktualne źródła biznesowe.
+
+Jako właściciel biznesowy bezpośrednio rozstrzygam szczegóły Q-016. Poniższe decyzje zastępują sprzeczne historyczne zapisy; odzyskiwanie wcześniejszych plików nie jest wymagane.
+
+Wyjątki progresji: może je przyznać nauczyciel przypisany do danej grupy, uprawniony administrator albo właściciel biznesowy. Nauczyciel nie musi być właścicielem programu. Sama rola metodyka nie daje tego uprawnienia. Każdy wyjątek wymaga uzasadnienia i audytu.
+
+Waluta: sprzedaż w MVP odbywa się wyłącznie w PLN. Kwoty nadal posiadają jawnie określoną walutę; przyszłe rozszerzenie wymaga osobnej decyzji.
+
+Kontynuacja: klient kwalifikuje się do kontynuacji, jeżeli dziecko ukończyło bieżący etap i istnieje opublikowany następny płatny etap spełniający jego warunki wejściowe. Okno 60 dni liczymy od późniejszej z dat: ukończenia bieżącego etapu albo udostępnienia możliwości zakupu następnika. Brak oferty kontynuacji wyłącza klienta z mianownika tego KPI.
+
+Ukończenie: obowiązują kryteria wersji programu. Jeżeli nie przewidziano egzaminu ani dodatkowych kryteriów, ukończenie następuje wraz z zakończeniem zaplanowanych zajęć dla uczestnika z aktywnym zapisem, który nie zrezygnował z udziału. Nie oznacza to automatycznego potwierdzenia opanowania wszystkich efektów nauczania.
+
+Frekwencja: średnia frekwencja to średnia arytmetyczna frekwencji uczestników. Frekwencja uczestnika to liczba zajęć live, w których uczestniczył, podzielona przez liczbę zajęć live zaplanowanych dla niego. Odwołane zajęcia bez realizacji nie wchodzą do mianownika; przełożone liczymy raz.
+
+Satysfakcja: ankietę wysyłamy po zakończeniu udziału w ocenianym module lub programie. Zbieramy jedną odpowiedź na udział dziecka, od opiekuna głównego. Raport obejmuje średnią ocen, liczbę wysłanych ankiet, liczbę odpowiedzi i response rate.
+
+Dostępność: cel 99,5% obejmuje logowanie, katalog, zakup i zapis, dostęp do harmonogramu oraz linków zajęć, materiałów, oddawania prac, ocen i raportów. Funkcje zewnętrznych wideokonferencji pozostają poza pomiarem; dostępność linków w platformie jest nim objęta. Sposób pomiaru i granice odpowiedzialności integracji należy doprecyzować w SA.
+
+Pozostałe zasady: potwierdzam pełny zwrot po niezaakceptowanej przez opiekuna istotnej zmianie zakupionej usługi; możliwość wstrzymania zatwierdzenia wyniku przy uzasadnionym podejrzeniu niesamodzielności do wyjaśnienia sprawy; niezwłoczne powiadomienie o zmianie zajęć; oświadczenie opiekuna o pełnoletności i uprawnieniu do reprezentowania dziecka; wymagane przed rozpoczęciem pracy szkolenia nauczycieli dotyczące ochrony małoletnich, komunikacji, prywatności i zasad oceniania.
+
+Szczegółowe procedury prawne, podatkowe, retencji i operacyjne pozostają objęte istniejącymi pytaniami NON_BLOCKER oraz odpowiednimi bramkami uruchomienia usługi. Ta decyzja rozstrzyga Q-016, ale nie stanowi zatwierdzenia dokładnej rewizji BA.
