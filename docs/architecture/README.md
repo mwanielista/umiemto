@@ -1,64 +1,60 @@
-# eSzkola baseline architecture
+# eSzkola intended architecture
 
-Baseline date: 2026-10-03. This is the current intended architecture, with explicit implementation gaps. [AGENTS.md](../../AGENTS.md) remains the project constitution. Architecture files and identifiers use English; the future product interface uses Polish.
+Architecture impact analysis verified: 2026-10-08. This proposal consumes approved BA revision 6 and SA revision 3; exact identities and approval evidence are in [implementation handoff](implementation-handoff.md). The requirement-impact delta is Proposed under [ADR-0008](decisions/0008-approved-requirement-impact.md). It is not application implementation or architecture approval.
 
-## AS-IS: verified repository
+## AS-IS
 
-| Artifact | Verified behavior |
+The verified application is the static Polish landing in `landing/`. Its waitlist stores demo entries in browser localStorage and does not create accounts or consents. Google Fonts is an external browser dependency. Nginx `1.27-alpine` serves static assets with 404 fallback; there is no API proxy, Angular routing, configured TLS or health check. Landing Compose exposes 8080 and uses restart `unless-stopped`; the repository-root project directory is required for its build context.
+
+There is no `backend/`, `frontend/`, root Compose file, product database, migration, product API or application build/test wrapper. Python orchestration and its tests are repository governance tooling, not the product runtime.
+
+The working tree contains all six Accepted ADRs (0001–0005 and 0007), Proposed ADR-0006, baseline principles and the unchanged architecture validator. Their bytes match HEAD `f94029b1486721893a4258ae07e6885272d06357`. Both existing validator variants pass against the actual checkout, including all six negative model cases. The earlier absence, exit-2 and missing-link statements describe an older checkout and are superseded by this verification.
+
+Historical ARCH-001 is recorded in the existing handoff and [coordinator recovery decisions](architecture_decisions.md). The current controller context supplies no new `review_findings` object. Recovery presence, exact identities and configured checks are now verified; this Architect stage does not close a reviewer finding or approve architecture. See the [current recovery evidence](implementation-handoff.md#arch-001-recovery-handoff).
+
+The supplied reservation excludes validation code and existing Accepted ADRs. This proposal refreshes affected architecture documentation only. The recovery document's proposed factual update preserves the coordinator's technical selections and records the same current evidence; its earlier incomplete-recovery statements are historical. Controller promotion must compare initial output/upstream identities, retain a complete architecture snapshot and baseline-relative diff including dirty/untracked bytes, then obtain independent read-only review and validation of the resulting package.
+
+## TO-BE and impact
+
+Preserve one Java/Spring Boot modular monolith, Angular/TypeScript web application, HTTP/JSON API, PostgreSQL with versioned migrations, private S3-compatible storage, external payment/video/email adapters and single-server Docker Compose. Keep the landing. Same-origin `/api/v1`, owner-prefixed persistence, immutable educational history, scoped authorization and PostgreSQL durable delivery remain valid.
+
+The affected design now covers configurable completion and progression, free retakes without commerce entitlements, guardian lifecycle and privileged recovery, bounded consultations, purchased-term changes/refunds, lesson disruption, teacher-readiness evidence and pilot KPI. Reporting gains an explicit read dependency on commerce for financial KPI; no additional deployable or broad shared-data layer is proposed.
+
+Approved BA/SA take precedence over conflicting historical business examples. Legacy SR-03, SR-04 and SR-05 are preserved as historical identifiers, with an explicit impact mapping in the handoff. Fixed four-lesson flow, unconditional prerequisite gating and paid retakes are not current business rules. Historical educational-template prices and thresholds are examples/superseded assumptions.
+
+## Views and contracts
+
+| Artifact | Purpose |
 | --- | --- |
-| `landing/index.html`, `styles.css`, `script.js`, hero image | Static Polish marketing page branded “Pyk! I umiem to.”; waitlist stores demo entries only in browser `localStorage`. It sends no server signup and is not an account/consent system. Google Fonts is an external browser dependency. |
-| `landing/Dockerfile`, `nginx.conf` | Nginx `1.27-alpine` serves static assets with `/` fallback to 404, not Angular routing; no API forwarding, TLS termination or health check is configured. |
-| `landing/docker-compose.yml` | One landing service, host port 8080, restart `unless-stopped`. Build context `./landing` requires repository-root project directory. No root Compose file exists. |
-| `docs/biznesplan-platforma-kursy-dla-dzieci.md`, `docs/szablon-programu-edukacyjnego-modul-4-zajecia.md` | Business plan and generic educational template with an illustrative mathematics configuration. |
-| `.codex/agents/architect.toml`, `.codex/agents/architecture-reviewer.toml` | Architecture and independent read-only review role definitions exist. |
-
-At baseline there is no backend, Angular frontend, database, migration, application build/test wrapper, application API or running integration in the repository. The architecture below is target-only; the landing remains the implemented application.
-
-## TO-BE: accepted baseline
-
-One Spring Boot deployable with domain modules and one PostgreSQL database; an Angular application served behind the same HTTPS origin; private S3-compatible files; external payment, video and email adapters. Initial hosting is a single server with Docker Compose. The existing landing remains a separate static entry point. Module boundaries and data ownership apply even inside one process/database.
-
-Architecture decisions are Accepted when fixed by repository constraints or sufficiently resolved in this baseline. Accepted does not mean implemented. Authentication mechanism remains Proposed pending provider, account and child-login decisions.
-
-| View | Purpose |
-| --- | --- |
-| [Normalized requirements](../requirements/baseline.md) | Traceable requirements and unresolved business inputs |
-| [Analysis contracts](../requirements/README.md), [workflow](../../workflow.md) | Separate BA/SA responsibilities, revision/approval gates and future BR/FR/NFR traceability; existing SR baseline is not approved BA/SA |
-| [System context](system-context.md) | Actors, external systems and trust boundaries |
-| [Containers](containers.md) | Actual landing and intended runtime/deployment |
-| [Components](components.md) | Capabilities, dependency direction and orchestration |
-| [Data model](data-model.md) | Logical ownership, versioning, concurrency and consistency |
-| [Contracts](contracts.md) | Cross-module contracts, events and HTTP boundary |
-| [Security](security.md) | Resource access, MFA, child privacy and file protection |
-| [Integrations](integrations.md) | Provider boundaries, failure/retry/reconciliation |
-| [Deployment](deployment.md) | Rollout, migration, backup/restore and operations |
-| [NFRs](nfr.md) | Quality scenarios and validation evidence |
-| [Principles](principles.md), [constraints](constraints.md) | Baseline-specific implementation rules and fitness functions |
-| [Implementation handoff](implementation-handoff.md) | Responsibilities, sequence, gates and risks |
-| [Machine-readable model](model.json) | Module dependency allowlist and logical persistent-data ownership |
+| [System context](system-context.md), [containers](containers.md) | C4 actors, trust and runtime boundaries |
+| [Components](components.md), [model](model.json) | Responsibilities, import allowlist and single data ownership |
+| [Data model](data-model.md), [contracts](contracts.md) | Consistency, historical evidence and public contract boundaries |
+| [Security](security.md), [integrations](integrations.md) | Resource access, files, provider verification and recovery |
+| [NFRs](nfr.md), [deployment](deployment.md) | Approved measurable objectives and release evidence |
+| [Constraints](constraints.md), [principles](principles.md) | Fitness functions and retained baseline principles |
+| [Implementation handoff](implementation-handoff.md) | Exact input gate, traceability, owners, verification and remaining gates |
 
 ## Decision register
 
-| ADR | Status | Decision |
+| ADR | Historical status | Current treatment |
 | --- | --- | --- |
-| [0001](decisions/0001-modular-monolith-boundaries.md) | Accepted | Capability modules with explicit public contracts and acyclic dependencies |
-| [0002](decisions/0002-owned-persistence-and-history.md) | Accepted | Owned persistence, immutable educational versions and explicit consistency |
-| [0003](decisions/0003-durable-effects-and-payments.md) | Accepted | PostgreSQL-backed durable delivery and idempotent payment fulfillment |
-| [0004](decisions/0004-resource-authorization.md) | Accepted | Role plus resource authorization, scoped privileged access and audit |
-| [0005](decisions/0005-runtime-and-api-boundary.md) | Accepted | Same-origin API, single-server Compose, provider adapters and recovery boundaries |
-| [0006](decisions/0006-authentication-options.md) | Proposed | Same-origin server session recommendation; credential authority unresolved |
-| [0007](decisions/0007-deterministic-analysis-orchestration.md) | Accepted | Deterministic repository orchestration and controller-owned approval/write boundaries |
+| [0001](decisions/0001-modular-monolith-boundaries.md) | Accepted | Preserve capability modules, public contracts and acyclic imports; ownership/import additions are proposed in 0008 |
+| [0002](decisions/0002-owned-persistence-and-history.md) | Accepted | Preserve owned persistence, immutable versions and local consistency |
+| [0003](decisions/0003-durable-effects-and-payments.md) | Accepted | Preserve durable delivery/payment deduplication; 0008 proposes explicit partial supersession of retake-entitlement fulfillment only |
+| [0004](decisions/0004-resource-authorization.md) | Accepted | Preserve role plus resource checks, MFA and transactional audit |
+| [0005](decisions/0005-runtime-and-api-boundary.md) | Accepted | Preserve same-origin API, Compose topology and provider boundaries |
+| [0006](decisions/0006-authentication-options.md) | Proposed | Credential authority remains unresolved; business login/recovery rules are now specified by SA |
+| [0007](decisions/0007-deterministic-analysis-orchestration.md) | Accepted | Preserve controller-owned writes and exact external approval evidence |
+| [0008](decisions/0008-approved-requirement-impact.md) | Proposed | Requirement-impact delta and narrowly scoped replacement of paid-retake design |
 
-The [analysis factory](../orchestrator.md) automates BA/SA contract/approval gates through architecture review and validation. It is repository tooling, separate from the product runtime; installation does not approve requirements.
+No Accepted ADR is rewritten, marked accepted or silently reinterpreted by this stage. Authentication implementation requires resolution of ADR-0006; new architecture choices require adoption of ADR-0008. BA/SA approval is not approval of these architecture decisions.
 
 ## Checks available now
 
-Run from repository root:
+The repository BA/SA structural and external-approval gates pass for the exact consumed inputs. All 24 FRs and 10 NFRs trace to the 26 input BRs, both artifacts have zero unresolved BLOCKER questions, and SA consumes the approved BA revision/content.
 
-```bash
-python3 docs/architecture/validation/check_baseline.py
-python3 docs/architecture/validation/check_baseline.py --self-test
-docker compose --project-directory . -f landing/docker-compose.yml config
-```
+Both unchanged architecture checker variants configured in `config/pipeline.yaml` were executed directly with the existing virtual-environment interpreter and bytecode writes disabled: PASS, exit 0. They verify 13 target modules, unique ownership, acyclic imports, ADR structure/status, ownership-table alignment and existing local Markdown destinations. The self-test rejects six invalid models. Landing Compose configuration also passes; no service was started.
 
-The Python check uses only the standard library. It validates the target model, unique logical data ownership, acyclic dependency allowlist, ADR structure/status and local documentation links. Self-tests exercise rejected graph/ownership cases. It does **not** inspect application bytecode, execute migrations, prove security or render Mermaid. Application fitness functions are specified in [constraints](constraints.md); they must be implemented at bootstrap. No application command is claimed to exist.
+These results cover the current checkout. Proposed file contents require validation after controller promotion and independent review of the complete resulting package. Proposed ADR adoption remains separate from requirements approval and executable validation.
+
+Compiled rules, migrations, provider tests, load/accessibility tests and recovery exercises remain downstream responsibilities. No application implementation or operational objective is verified by this stage.

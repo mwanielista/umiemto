@@ -1,39 +1,46 @@
 # Security and privacy boundaries
 
-Target-only; no security implementation exists. [ADR-0004](decisions/0004-resource-authorization.md) fixes authorization requirements; [ADR-0006](decisions/0006-authentication-options.md) leaves authentication selection Proposed.
+Target-only; no product authentication/security implementation exists. Preserve [ADR-0004](decisions/0004-resource-authorization.md). [ADR-0006](decisions/0006-authentication-options.md) remains Proposed for credential authority/session implementation. Approved FR-001/FR-014/FR-015/FR-019/FR-020 and NFR-001/NFR-007/NFR-008 define the current business/security behavior.
 
-## Authentication and session boundary
+## Authentication, guardians and recovery
 
-Backend verifies the credential authority's identity and assurance and creates a trusted actor context. External identity subjects are mapped to local accounts; identity provider roles cannot silently grant local educational/admin authority. Recommended browser boundary is a server-managed session with Secure/HttpOnly/SameSite cookie, rotation, expiration/revocation and CSRF validation. Tokens/secrets never go to browser localStorage or logs. If selected, persist sessions in PostgreSQL to avoid an extra service. Exact credential/password/MFA/recovery implementation awaits ADR-0006 resolution; do not implement both options speculatively.
+Backend creates verified actor/assurance context and maps external subjects, if selected, to local accounts/grants. Provider claims never grant unlimited local authority. ADR-0006 recommends same-origin Secure/HttpOnly/SameSite session cookies with CSRF protection, rotation, expiry/revocation and PostgreSQL persistence if needed; no credential mechanism/provider is selected here. Do not implement both options or store secrets/tokens in browser localStorage.
 
-MFA is a requirement for teachers, methodologists, admins and other privileged actors. A privileged operation checks session assurance and current grants; a lower-assurance login cannot exercise these privileges. Identity/account recovery must not bypass MFA or let a child obtain guardian authority. Parent consent/profile authorization is separate from authentication. Parent-child switching must produce a restricted learner context, never retain purchasing power in the child UI/session context.
+Child has independent educational login without mandatory email/phone, created/reset by an authorized guardian. Verified administration can recover it with audit. Child context cannot purchase, manage guardian relations/adult consents, change billing or acquire guardian authority through recovery/switching.
 
-## Resource authorization matrix
+Main guardian is established by verified assignment; only main guardian invites a named additional guardian, who accepts through their own account. Additional guardians cannot delegate. Removal blocks subsequent child-resource access and preserves history. Main replacement needs current main consent or verified audited administrator decision; disputes/loss of all access require controlled manual administration, never automatic family-law adjudication. Serialize changes per child and recheck authoritative relation versions during mutations.
 
-| Actor | Allowed scope | Explicit boundary |
+MFA is mandatory for teachers, methodologists, support, administrators and product Business Owner accounts. It is optional for guardians in MVP and not mandatory for children. A privileged operation checks current grants, scope and assurance. Recovery uses a previously generated code or additional identity verification by authorized administration; administrators cannot approve their own MFA recovery. Reset invalidates old configuration, requires new setup and appends audit; session invalidation is supported. Recovery must not provide a lower-assurance privileged bypass.
+
+## Resource matrix
+
+| Actor | Allowed authority | Denied implicit authority |
 | --- | --- | --- |
-| Parent/guardian | Currently authorized children, their schedules/reports/consultations, own purchases | No access to other guardians' children/orders; managing linked profile requires current grant and required consents |
-| Child | Own educational resources and active eligible participation | No purchases, other children, teacher private notes, admin functions or pre-review exam keys |
-| Teacher | Assigned groups, relevant learners/submissions/attempts and scoped consultations | No unrelated groups, broad commerce data or guardian administrative authority |
-| Methodologist | Program authoring/publishing, assessment oversight and scoped educational exception/correction | Educational permission does not imply payment or identity administration; child-data scope explicit |
-| Support | Assigned operational case and minimum relevant contact/order/group data | No implicit answer-key, grade-change or complete child transcript access |
-| Business administrator | Granted group/payment/content operations | Grade/permission changes need separate grants; sensitive changes audited |
-| Technical operator/auditor | Infrastructure/health or restricted audit purpose | No default unrestricted application impersonation or child-content browsing |
+| Guardian | Active related child schedules/materials/results/reports/consultations, authorized purchases/consents and child recovery | Other children; automatic visibility into another purchaser's unrelated financial data; additional-guardian delegation |
+| Child | Own authorized educational resources | Purchase/billing, adult consents, guardian management, other children or pre-review exam keys |
+| Teacher | Assigned/explicitly shared programs/groups, relevant learners, grading, consultations and authoring | Unrelated child/group data, unnecessary billing data; authorship is not required for assigned-teacher progression exception |
+| Methodologist | Scoped content/criteria and quality evidence | Role alone cannot grant progression exception, refunds, purchases, guardian management or full child access |
+| Support | Minimum case data and preparation of operations | No dispute-based guardian grant, final grade change or progression override without a distinct authorized grant |
+| Administrator | Explicit granted participation/commerce/guardian/incident/moderation actions | No global bypass, automatic grade authority or self-approved MFA recovery |
+| Business Owner | Explicit business authority including audited progression exception and terms qualification | BA/SA approval is external governance, not a product endpoint |
+| Technical operator/auditor | Private operational health or restricted audit purpose | Unrestricted child-content browsing or impersonation |
 
-Resource owners authorize on every query and command, including lists, nested IDs, exports, attachments and archived data. Pagination/counts must not leak unauthorized resources. Recheck guardian/teacher revocation and enrollment state rather than assuming old browser grants are current. Negative integration tests cover identifier swapping, role elevation, stale assignments and nested resources. Admin roles are not a universal bypass. Any exceptional operational access needs purpose, scope, expiry and audit according to an approved workflow.
+Owners check every list/detail/query/command/export, nested ID, file and archive. Revoked relations/assignments must fail subsequent operations; UI state and stale cached grants are insufficient. Counts/pagination must not enumerate inaccessible children. Named internal workflow authority carries original actor/event and grants only its operation.
 
-## Files and free text
+## File and content boundary
 
-Upload uses an owner-authorized intent bound to resource and actor. Server limits size/type/count, generates object keys, validates MIME/content and quarantines until malware scanning passes. Expired, oversized, spoofed or failed/unavailable scans stay inaccessible. Storage operations are private; short-lived URLs are issued only after owner authorization and clean scan, with careful content disposition and no predictable bucket/key enumeration. File access logs redact URL secrets. Scanner choice and limits are open implementation inputs; do not make a file downloadable before the pipeline exists.
+Owner-authorized upload intent binds actor/resource and generated opaque object key. Allowed attachments: PDF, JPG/JPEG, PNG, WEBP, DOCX; at most 20 MB per file and five files per submission/message. Owner checks batch count and files checks extension, declared MIME, actual type/magic bytes, bytes/size and malware. DOCX is an explicitly allowed document format; that does not admit generic ZIP/archive uploads or arbitrary embedded active content.
 
-Render submitted text/math with output escaping and restricted markup; mathematical evaluation uses bounded grammar/resources, never arbitrary execution. Rate-limit authentication, uploads, checkout, submissions and consultation sends; exact quotas require capacity/product choices. Exam delivery uses a learner DTO without keys or private rubrics. Teacher/private notes need explicit visibility, not generic report serialization.
+Quarantine/scan-pending/rejected states are not downloadable by other users. Scanner failure fails closed. Private buckets and least-privilege server access remain mandatory. Short-lived URLs or proxied bytes require owner authorization, clean scan and content disposition; URL tokens are redacted. Recheck resource scope before issuing each operation. Safe retention determines archive lifetime.
 
-## Audit, privacy and lifecycle
+Free text uses output escaping/restricted markup. Mathematical answers use bounded safe server parsing/evaluation, never arbitrary execution. Learner DTOs omit answer keys/private rubrics until authorized review. Rate-limit login, recovery, uploads, checkout, submission and consultation sends; unspecified operational thresholds must be set during concrete design, not invented as business policy.
 
-Privileged mutation plus audit append share a transaction; failure to record required audit fails the mutation. Grade changes, progression overrides, permission changes, refunds, sensitive exports/admin actions and consultation moderation have actor/reason/time/resource/revision evidence. Runtime logs are not the audit trail. Restrict audit reads; application credentials must not support arbitrary mutation/deletion of audit history. Retention processing is a separate privileged operation with evidence, not perpetual retention by default.
+## Audit and lifecycle
 
-Collect only justified child/profile data; do not presume full birth date, address or medical details are needed. Keep passwords/tokens/card data/child message bodies out of logs, metric labels and email subject lines. Prefer email linking to an authenticated report over sending full child results. Encrypt transmission, protect stored sensitive data and backups, and keep secrets outside Git. Legal basis, retention schedules, guardian verification and processing agreements require review by the appropriate owners; this architecture does not certify legal compliance.
+Required audit and privileged mutation share one transaction. Include grades/reviews/corrections, progression exceptions, permissions/guardian changes, recovery, refund/manual decisions, sensitive administration, moderation and appropriate exports. Retain actor, resource, time, decision, prior revision and required reason without secrets or full child-message bodies. Restrict reads and mutation/deletion capabilities; approved retention processing itself is privileged/audited.
 
-Consultation scope/quota/window is enforced on the server, archived access is authorized, and edits/moderation cannot erase history without audit. Do not direct children to personal teacher contact accounts. Recording lessons is not required by baseline; any later recording workflow needs purpose, access, retention and approved basis before integration.
+Default diagnostic retention is 30 days under NFR-008 unless an approved policy changes it. Business/security audit has separate retention and is not automatically purged after 30 days. Exclude passwords, secrets, tokens, card data and sensitive child content from logs, metrics and email subjects. Prefer authenticated links over emailing full child results.
 
-External providers are untrusted until verified; only trusted proxy addresses may supply forwarded identity/IP headers. Payment exceptions from CSRF protection apply only to the exact verified webhook route. Health/metrics endpoints and database ports remain private. Logs centralize on the initial server with rotation and off-host recovery evidence, without requiring a new observability service.
+No public child profiles, open contact or private teacher accounts. Consultations are archived with active authorized-guardian visibility. No default recording; recording needs separately approved purpose, basis, access and retention. Teacher readiness records approved checks/training with minimal restricted evidence. Consent/declaration versions retain person/time; lawful bases, retention, rights procedures, contracts, safeguards and final teacher checks remain SA-Q-010 production gates.
+
+Trust only configured proxy sources for forwarded headers. Exact verified payment webhook route has provider authentication; other mutations must not inherit its CSRF exception. Database, health and metrics remain private. Independent security/architecture review and actor/resource negative tests are required after implementation.

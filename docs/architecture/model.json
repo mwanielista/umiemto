@@ -9,7 +9,7 @@
     "infrastructure",
     "interfaces"
   ],
-  "dependencyMeaning": "Allowed compile-time imports of provider public contracts; not required edges.",
+  "dependencyMeaning": "Allowed compile-time imports of provider public contracts; not required edges. Requirement-impact delta is Proposed under ADR-0008; unchanged Accepted boundaries remain binding.",
   "modules": [
     {
       "id": "audit",
@@ -39,7 +39,9 @@
         "GuardianRelationship",
         "ConsentRecord",
         "RoleGrant",
-        "AuthenticationState"
+        "AuthenticationState",
+        "GuardianInvitation",
+        "TeacherReadinessRecord"
       ]
     },
     {
@@ -74,7 +76,8 @@
         "ScheduledGroup",
         "TeacherAssignment",
         "SeatReservation",
-        "Enrollment"
+        "Enrollment",
+        "AdministrativeCase"
       ]
     },
     {
@@ -90,7 +93,8 @@
         "LessonOccurrence",
         "MeetingReference",
         "Attendance",
-        "LessonMaterial"
+        "LessonMaterial",
+        "LessonChangeDecision"
       ]
     },
     {
@@ -141,7 +145,8 @@
       "ownedEntities": [
         "ConsultationThread",
         "ConsultationMessage",
-        "ConsultationPolicyVersion"
+        "ConsultationPolicyVersion",
+        "ConsultationWeekUsage"
       ]
     },
     {
@@ -157,9 +162,13 @@
         "OrderLineSnapshot",
         "Payment",
         "Refund",
-        "RetakeEntitlement",
         "ProviderCallback",
-        "CommerceDelivery"
+        "CommerceDelivery",
+        "OfferVersion",
+        "SettlementPlanVersion",
+        "PurchasedTermsChange",
+        "RefundDecision",
+        "SalesDocument"
       ]
     },
     {
@@ -172,10 +181,14 @@
         "assignments",
         "assessments",
         "consultations",
-        "audit"
+        "audit",
+        "commerce"
       ],
       "ownedEntities": [
-        "ProgressReportSnapshot"
+        "ProgressReportSnapshot",
+        "ContinuationQualification",
+        "SatisfactionSurvey",
+        "KpiReportSnapshot"
       ]
     },
     {

@@ -1,45 +1,39 @@
-# Deployment and operational baseline
+# Deployment and operational target
 
-## AS-IS commands
+AS-IS: only `landing/docker-compose.yml` with static Nginx on 8080 exists. Its configuration check was executed successfully using repository-root project directory. No application runtime, production deployment or migration exists. Preserve the landing; no service was started or configuration edited in this stage.
 
-From repository root, configuration validation is:
+## Retained topology
 
-```bash
-docker compose --project-directory . -f landing/docker-compose.yml config
-```
+[ADR-0005](decisions/0005-runtime-and-api-boundary.md) remains binding: single-server Docker Compose, Angular production build/web server with route fallback and same-origin API forwarding, one Spring monolith, private PostgreSQL/persistent volume and private S3-compatible files. HTTPS exposes only required edge ports; backend/database/management stay private. External file storage does not introduce another product deployable.
 
-Starting the existing landing (not executed by this architecture task):
+Select compatible supported pinned toolchains/images at actual bootstrap; no current vendor/version support claim is made here. Separate dev/prod credentials/configuration. Distinguish container health, database readiness, migration completion and backend readiness. Restart policies never substitute for recovery or durable delivery.
 
-```bash
-docker compose --project-directory . -f landing/docker-compose.yml up --build -d
-```
+Secrets stay outside Git; runtime and recovery access are least privilege. Trust only configured proxy forwarding. Keep diagnostics redacted/restricted with default 30-day retention, separate from audit. Monitoring covers availability, provider failures, permanent data failures, scan backlog and backup integrity. Do not introduce a monitoring platform/broker/cache without a measured need.
 
-Default project-directory resolution from the Compose file would incorrectly target `landing/landing` for its build. The explicit project directory preserves the existing file. No root Compose file, application build/test command or production deployment exists. This baseline does not change container/image versions or start services.
+## Availability and incident controls
 
-## TO-BE topology and responsibilities
+NFR-003 sets 99.5% monthly measured controlled-process availability. Per-process one-minute synthetic checks and app fault evidence follow [nfr.md](nfr.md); partial process outages count. Maintenance exclusion requires ≥24-hour user notice and recorded exclusion evidence. Inform families of lesson disruption without an invented global notification SLA.
 
-Follow [ADR-0005](decisions/0005-runtime-and-api-boundary.md). Add backend/frontend/PostgreSQL to a documented root Compose setup when bootstrap is explicitly requested; preserve landing. Separate development from production configuration, environment credentials and data. Select supported compatible pinned runtimes/dependencies/images at that time; this baseline avoids unsupported claims about then-current versions.
+NFR-008 requires critical alert at five consecutive unavailable minutes, three consecutive failed critical-integration attempts, permanent data read/write failure and significant authorization/payment/file-error growth. Configure thresholds outside domain code. SA-Q-009 must resolve growth baseline/window and retry timing semantics before operational acceptance. Incident ownership/escalation and monitoring implementation must be documented when selected.
 
-Frontend uses a dedicated Angular build stage and a production web server with route fallback and `/api` forwarding. HTTPS edge exposes only needed 443 and, where required, 80 for redirect/certificate validation. Backend/database are private; do not publish database or metrics/admin ports. Separate container health checks, database readiness and migration completion before backend readiness; restart policies do not replace these checks. A database outage must not turn backend readiness green or discard pending work. Private S3 storage can be external without changing the single-server application topology.
+## Migrations, rollout and rollback
 
-Secrets are mounted/provided at deployment, with safe placeholders only in examples. Runtime credentials and backup access are least privilege. Rotate payment/identity/storage secrets using provider procedures; do not log them. Centralize/rotate structured logs initially on the server and alert on readiness, failed callbacks/delivery, backup failure and storage scan backlog. Select an operational monitoring tool only with a concrete requirement; no additional observability platform is part of the baseline.
+One reviewed globally ordered migration stream retains owner-prefixed data and immutable history. Choose the migration library at bootstrap; no product migration command exists. Apply migrations once before starting compatible images; never rely on ORM production auto-update or uncontrolled concurrent migration runners.
 
-## Migration and rollout
+Prefer additive expand/contract changes and bounded verified backfill. Rehearse empty-database creation and upgrade with real PostgreSQL. Back up before destructive changes. Restore/forward-fix plans must preserve payments/submissions arriving after a backup. Rollback uses a previous immutable image only if compatible with current schema; an image rollback does not undo persisted state.
 
-One globally ordered versioned migration stream, reviewed for owner prefixes and immutable history preservation. Choose a migration library at bootstrap; no command is available yet. Never rely on production ORM schema auto-update. Migration credentials are separate from runtime where practical. Use deployment sequencing that applies migrations once, records success, and starts only compatible backend images; concurrently starting multiple app instances must not race migrations.
+These proposals do not migrate a deployed educational database or retake table, because none exists. An intentionally adopted model delta needs future versioned migrations for the implemented slice. Landing localStorage entries are not an account/consent import. Never remove user volumes during routine rollout.
 
-Use additive expand/contract changes for persisted/public compatibility: introduce new fields/tables, migrate/backfill with bounded verified jobs, deploy compatible code, remove old structure only after rollback window. Backup before destructive migrations. Do not reverse accepted historical content by rewriting migrations. Rehearse empty-database creation and upgrade from previous schema with real PostgreSQL before release.
+## Backup and measured restore
 
-Rollback uses the last compatible immutable application image when schema permits. Destructive migrations require a separately tested recovery/forward-fix plan; rolling back an image does not undo database state. User submissions/payments acquired after a backup must be reconciled before accepting a destructive restore. Never routinely delete database/object volumes to redeploy.
+NFR-004 requires RPO ≤24 hours and RTO ≤4 hours, including 15 continuous healthy minutes. Operations must implement encrypted off-server database backups, verified integrity, recoverable object versions/inventory and secure independent secrets/recovery configuration. A named volume is not a backup. Backup intervals, transfer delays and restore procedure must demonstrate the bounds; a nominal daily schedule alone does not prove RPO.
 
-## Backup and restore
+Backup/audit/object retention remains approved production policy, not an invented duration. Use point-in-time recovery only when needed to meet the agreed objective. Retain provider identifiers, durable callback/delivery/refund/request keys and appropriate session metadata for safe reconciliation.
 
-Database volume survives container recreation but is not a backup. Operations must implement encrypted off-server PostgreSQL backups with retention, access control and integrity checks; periodic database dumps may be enough only if agreed RPO allows their interval, otherwise choose a justified point-in-time recovery method. Set RPO/RTO and retention with product before production rather than promising invented targets.
+Isolated restore covers all NFR-004 data classes, matching DB/object versions and complete basic processes. Test historical assessments, guardian authority, enrollment/refund uniqueness, consultation quota and protected audit. Compare durable pre-failure events to restored state for RPO. Measure from earliest detection/confirmation through 15-minute stability for RTO. Reconcile provider outcomes before releasing pending dispatch/replay; uncertain refund requests cannot be sent anew without verification. Document actual scripts only when the chosen infrastructure exists.
 
-Object storage needs its own recoverable backup/versioning policy and inventory consistent with database object metadata. Include protected audit/history and any selected database session/delivery state. Provider transaction references must survive restoration for reconciliation. Secrets/recovery configuration need secure independent recovery, not plain-text inclusion in repository/backups.
+## Production gates
 
-Restore rehearsal: provision isolated environment; restore database and matching object inventory; apply only compatible migrations; validate sample historical attempts, authorized parent access, payment/fulfillment uniqueness and audit; reconcile provider settlements before replaying pending work; measure recovery time and evidence. Document exact commands/scripts once chosen infrastructure exists. Do not test recovery destructively against production.
+Before corresponding production use: TLS/private exposure, supported pinned builds, proxy/SPA routing, migrations/compatible rollback, resource/MFA/recovery controls, sandbox verified payments/refunds, clean private attachments, load evidence, monitoring, off-server backup and measured full restore. SA-Q-010 additionally covers final consent/privacy/retention/rights/processor agreements, VAT/sales documents, consumer procedures and teacher safeguards. Approved BA/SA do not certify those gates.
 
-## Readiness gates
-
-Before real child data/payments: production TLS, correct API/SPA routing, supported pinned images, migration upgrade/rollback evidence, authorization/MFA checks, sandbox payment lifecycle, private clean attachments, off-server backup + restore rehearsal, retention/provider review, monitoring and incident owner. These are future release responsibilities; no baseline document claims they pass today.
+No operational gate is claimed to pass beyond the existing landing configuration check.

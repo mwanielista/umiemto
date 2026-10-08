@@ -4,44 +4,49 @@
 
 ```mermaid
 flowchart LR
-    browser["Visitor browser\nHTML/CSS/JS + localStorage demo"] -->|"HTTP :8080"| nginx["landing container\nNginx :80"]
-    browser -->|"HTTPS fonts"| fonts["Google Fonts"]
+    visitor["Visitor browser: HTML/CSS/JS + localStorage demo"]
+    landing["landing: Nginx :80"]
+    fonts["Google Fonts"]
+    visitor -->|"HTTP :8080"| landing
+    visitor -->|"HTTPS fonts"| fonts
 ```
 
-Defined by `landing/docker-compose.yml`. No server storage, API, authenticated UI or TLS endpoint is currently configured.
+Only landing Compose exists; no server account storage, API, authenticated application or configured TLS boundary is implemented.
 
-## TO-BE
+## Retained target topology
 
 ```mermaid
 flowchart TB
-    browser["Parent / child / staff browser\nAngular application"]
-    external["External payment provider"]
-    subgraph server["Single server — Docker Compose"]
-        edge["HTTPS edge\nTLS termination and routing"]
-        landing["Existing landing\nStatic Nginx service"]
-        frontend["frontend\nNginx: Angular assets / route fallback / API proxy"]
-        backend["backend\nSpring Boot modular monolith\nHTTP API + in-process scheduled jobs"]
-        db[("PostgreSQL\nOwned tables + durable delivery + sessions if selected\nPersistent volume")]
-        edge -->|"Marketing host/path"| landing
-        edge -->|"Application host"| frontend
-        frontend -->|"/api"| backend
-        backend -->|"Private database connection"| db
+    browser["Guardian / child / staff: Angular browser"]
+    payment["External payment processor"]
+    subgraph server["Single server: Docker Compose"]
+        edge["HTTPS edge: TLS and routing"]
+        landing["Preserved static landing"]
+        frontend["Frontend web server: Angular assets, SPA fallback, API proxy"]
+        backend["Spring Boot modular monolith: API + scheduled durable work"]
+        db[("Private PostgreSQL: owned data, delivery, sessions if selected")]
+        edge --> landing
+        edge --> frontend
+        frontend -->|"/api/v1"| backend
+        backend --> db
     end
     browser -->|"HTTPS"| edge
-    external -->|"Verified /api payment webhook"| edge
-    backend -->|"Provider adapters"| providers["Payments / video / email\nExternal services"]
-    backend -->|"Private object operations"| storage["S3-compatible object storage\nEU/EEA preferred"]
-    db -.->|"Encrypted off-server backup"| backup["Restricted backup destination"]
+    payment -->|"Verified payment / refund callbacks"| edge
+    backend -->|"Owner adapters"| providers["Payments / video / email"]
+    backend -->|"Private objects / quarantine"| storage["S3-compatible storage: EU/EEA preferred"]
+    db -.->|"Encrypted off-server backup"| backup["Restricted recovery destination"]
+    storage -.->|"Recoverable versions / inventory"| backup
 ```
 
-The edge can be integrated into the production frontend web server or provided by a host reverse proxy; no extra distributed service is mandated. The chosen arrangement must preserve application same-origin `/api` access, landing, TLS, correct forwarded headers and webhook routing. It is an implementation topology decision within ADR-0005.
+ADR-0005's topology is preserved. Edge may be integrated with the frontend server or host proxy, retaining same-origin API, landing/TLS and trusted forwarding. No new service is required for KPI, cases, MFA, quota or refund coordination. Provider/credential selection and session persistence remain separate choices.
 
-| Container/boundary | Responsibility | Exposure / state |
-| --- | --- | --- |
-| landing | Marketing and existing demo behavior | Static files; no production child/account data |
-| frontend | Angular feature workflows, accessible Polish interface, dedicated typed API clients | Browser assets; no credentials/long-lived tokens in browser storage |
-| backend | Domain capabilities, authorization, integration adapters, scheduled durable delivery | Private service port; no exposed admin/metrics endpoint |
-| PostgreSQL | Business state, unique constraints, versioned migrations, delivery/session state | Private network; persistent named volume, separately backed up |
-| Object storage | Quarantined/scanned private materials and submissions | Private buckets; controlled expiring access after capability authorization |
+| Boundary | Responsibility / exposure |
+| --- | --- |
+| landing | Static marketing/demo; no production child/account persistence |
+| frontend | Polish responsive feature flows and typed APIs; no long-lived browser-storage secrets |
+| backend | Resource-authorized capability rules, bounded owner adapters and in-process durable workers; private service/management ports |
+| PostgreSQL | Owner-prefixed tables, uniqueness, versioned migrations and durable work; persistent volume plus independent backup |
+| S3 | Private quarantined/scanned materials/submissions; expiring authorized operations and matching backup inventory |
+| Recovery | Off-server database plus object evidence, protected audit and provider references; measured RPO/RTO |
 
-Backend/frontend containers, PostgreSQL, TLS and production routing are target-only. Exact image/runtime versions, secrets provisioning and hostnames await bootstrap. See [deployment](deployment.md) for migration/readiness/backup responsibilities.
+All new containers/routing/migrations/health/TLS remain unimplemented. The diagram adds object recovery alongside database recovery because NFR-004 explicitly includes service files. No current-version compatibility or operational objective is claimed to be verified. See [deployment](deployment.md) and [nfr.md](nfr.md).

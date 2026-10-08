@@ -1,68 +1,63 @@
 # Backend capability components
 
-Status: target, none implemented. Decisions: [ADR-0001](decisions/0001-modular-monolith-boundaries.md) and [ADR-0002](decisions/0002-owned-persistence-and-history.md). The dependency allowlist is authoritative in [model.json](model.json). An allowed edge is permission, not a requirement to add a dependency.
+Status: target; all application components remain unimplemented. Preserve [ADR-0001](decisions/0001-modular-monolith-boundaries.md) and [ADR-0002](decisions/0002-owned-persistence-and-history.md). The [model](model.json) is the complete public-contract import allowlist. Requirement-impact additions are Proposed under [ADR-0008](decisions/0008-approved-requirement-impact.md); an allowed edge is permission, not mandatory coupling.
 
-## Module responsibilities
+## Responsibilities
 
-| Module ID | Owned capability | Public contract examples |
+| Module | Owned capability | Requirement impact |
 | --- | --- | --- |
-| `identity` | Actor identity, parent/child profiles, guardian relations, consents, role grants and MFA/session metadata | Resolve verified actor; guardian access decision; consent status |
-| `catalog` | Subjects, age bands, paths, module definitions, published program/lesson plans, question versions, rubrics and educational policies | Published program manifest; assessment content for trusted server grading; learner-safe content |
-| `groups` | Scheduled cohorts, teacher assignments, seat reservations, enrollment and participation status | Reserve/confirm a seat; enrolled resource scope; activate participation |
-| `lessons` | Actual lesson occurrences, external meeting references, attendance and lesson material associations | Authorized schedule/join information; attendance summary |
-| `assignments` | Assigned homework, submissions, practice attempts, hints and teacher feedback | Submission/feedback; practice outcome evidence for retake readiness |
-| `assessments` | Diagnosis, exam/retake attempts, grading decisions, final module completion and educational exceptions | Final completion/eligibility decision; attempt creation; approve/revise grading |
-| `consultations` | Scoped question threads, bounded communication, quotas, lifecycle and archive | Request/accept/reply/close; authorized archive |
-| `commerce` | Price/tax configuration, order snapshots, payment/refund records, retake entitlements, verified callback inbox and fulfillment outbox | Quote/order; verified paid entitlement; pending fulfillment delivery |
-| `reporting` | Report assembly and explicitly generated report snapshots | Parent report; educational summaries, with source result revision |
-| `files` | Private object metadata, quarantine/scan status, limits and storage adapters | Upload intent; scan status; authorized storage operation after owning capability checks |
-| `notifications` | Transactional email intents, templates and delivery status | Enqueue deduplicated message; delivery outcomes |
-| `audit` | Append-only records for privileged and important actions | Append bounded event in caller transaction; restricted audit query |
-| `workflows` | Cross-module application coordination: checkout/reservation, fulfillment, progression, paid retakes, notification routing | User-facing coordinated use cases and scheduled delivery handlers |
+| identity | Accounts, child/guardian profiles, active/main relationships, invitations, consent versions, grants, authentication metadata and teacher-readiness records | FR-001, FR-014, FR-019, FR-020, NFR-001 |
+| catalog | Subjects, target groups, definitions, immutable program/content/question/criteria versions, required elements, entry/completion/progression and retake policies | FR-002, FR-003, FR-008–FR-011, FR-017, FR-023 |
+| groups | Scheduled groups, teacher assignments, capacity, reservations, enrollment/participation and organizational cases | FR-004–FR-006, FR-014, FR-021 |
+| lessons | Lesson occurrences, meeting information, attendance, material associations and disruption/change decisions | FR-006, FR-021, FR-024 |
+| assignments | Homework, submissions, practice, hints and manual feedback | FR-007, FR-008, FR-023 |
+| assessments | Diagnosis, exam/retake attempts, grading/review, versioned completion and progression exceptions | FR-003, FR-005, FR-009–FR-011; no paid/free commerce entitlement |
+| consultations | Authorized archived threads/messages, access policy and shared weekly quota usage | FR-013–FR-015 |
+| commerce | Offer/price/tax and settlement-plan versions, purchased snapshots, term-change acceptance, orders, payments, refund decisions/evidence, sales documents and durable payment delivery | FR-002, FR-004, FR-018, NFR-002, NFR-010; no retake product |
+| reporting | Authorized progress summaries, derived KPI/cohorts, continuation qualifications and satisfaction surveys | FR-012, FR-024; gains public read access to commerce |
+| files | Private object metadata, quarantine/scan evidence, validation limits and storage/scanner adapters | FR-007, NFR-007 |
+| notifications | Deduplicated transactional intents and bounded delivery status | FR-016, NFR-010 |
+| audit | Protected append-only important/privileged-action evidence | FR-015, NFR-008 |
+| workflows | Checkout, fulfillment, participation, completion, free-retake coordination, service-change/refund coordination and notification routing | Composes owner contracts; owns no business tables |
 
-Supporting modules are in the same deployable, not extra services. `workflows` owns no educational/payment truth or entity tables; delivery records remain with their producing owner. `reporting` does not query other modules' tables and cannot unlock progression. `files` does not grant learning access itself.
+Organizational case status in groups links owner-specific decisions by opaque IDs; it does not become a second refund, guardian-dispute or grading authority. Teacher readiness in identity records approved checks and training, not legal conclusions. Operational availability/restore evidence is maintained by operations outside product business persistence.
 
 ## Dependency direction
 
 ```mermaid
 flowchart TD
-    workflows["workflows\nCross-capability coordination"] --> commerce
+    workflows --> commerce
     workflows --> groups
+    workflows --> lessons
     workflows --> assessments
-    workflows --> notifications
     workflows --> reporting
+    workflows --> notifications
+    reporting --> commerce
     reporting --> assessments
-    reporting --> assignments
     reporting --> lessons
+    reporting --> assignments
     reporting --> consultations
-    consultations --> lessons
     consultations --> groups
-    lessons --> groups
-    assignments --> groups
-    assessments --> assignments
+    consultations --> lessons
     assessments --> groups
+    assessments --> assignments
+    assessments --> catalog
+    assignments --> groups
+    lessons --> groups
     groups --> catalog
     commerce --> catalog
-    assessments --> catalog
-    assignments --> catalog
-    catalog --> files
     groups --> identity
     commerce --> identity
 ```
 
-This diagram highlights business edges; [model.json](model.json) includes complete edges to identity, audit, files and other public contracts. Arrows mean consumer imports provider's public API. No leaf imports `workflows`, `reporting`, or a consumer. Domain modules do not directly depend on `notifications`; workflows routes committed facts to email intents. This prevents mail/provider failures from blocking grading/payment commits.
+The model contains the full edges to identity, files, audit and other public APIs. No capability imports workflows or reporting. Reporting never writes source records or supplies authoritative progression decisions. Files never grants learning entitlement. Provider implementations remain inside their owner infrastructure.
 
-Two potential cycles are intentionally resolved:
+Assessments reads group authority; groups never reads assessment persistence. Participation orchestration obtains the configured prerequisite decision and activates enrollment in one local transaction. Commerce commits verified payment/delivery facts without calling groups; workflows performs deduplicated enrollment fulfillment. Retakes consult educational eligibility and serialize attempt creation without commerce. Completion without an exam gathers required-element evidence through lessons/assignments public queries and asks assessments to finalize the versioned completion; no reverse dependency from lessons to assessments is needed.
 
-- Assessments consult groups for enrollment and teacher scope. Groups do not consult assessments: the `StartParticipation` workflow obtains the final prerequisite decision and commands groups in one local transaction.
-- Commerce records paid facts without invoking groups. Workflow fulfillment consumes commerce delivery through its public contract and commands groups with a deduplication key. Checkout coordinates seat reservation and order snapshots. Additional paid retakes compose commerce entitlement with assessment eligibility without introducing reciprocal dependencies.
+## Packages and frontend
 
-## Target package boundaries
+Root package: `pl.eszkola`. Only `pl.eszkola.<owner>.api` crosses modules. Private packages remain `application`, `domain`, `infrastructure`, `interfaces`. Public DTOs cannot import private entities/services; domain code has no HTTP, ORM or provider dependency. Application coordinates rules/ports, infrastructure implements adapters and interfaces handles HTTP. A small composition root wires components without owning business data.
 
-Backend root package: `pl.eszkola`. Module layout: `pl.eszkola.<module>.api` for explicit DTO/interface contracts, and private `application`, `domain`, `infrastructure`, `interfaces` packages. `interfaces` contains HTTP endpoints; infrastructure contains persistence/provider adapters. Public API contracts must not import private application/domain/entity classes. Domain has no HTTP/provider/ORM dependencies. Application coordinates domain and abstract ports; infrastructure implements ports. Boot wiring belongs in a small composition root, with no business data or rules.
+Extract genuinely shared technical IDs, decimal money/currency, instants and trusted actor context only when needed. Do not introduce shared repositories/entities or empty speculative layers.
 
-Within a module, adapt the layout to actual need rather than creating empty layers. Only public `.api` contracts may cross modules, restricted by the allowlist. Shared technical value types (opaque IDs, decimal money with currency, instants, validated actor context) may be extracted when truly shared; no generic shared entity/repository or hidden shared domain policy is allowed. Migration ordering is global; table ownership is module-specific.
-
-## Frontend boundaries
-
-Target feature areas: identity, catalog/checkout, learner work, teacher work, parent reporting and content/operations administration. Feature-owned typed API services expose server DTOs; routing belongs to the feature. App shell handles navigation/session state. Shared UI has no business persistence or cross-feature services. Features may compose capability APIs without mirroring every backend module as a screen. Route guards improve UX; API resource checks remain decisive. Exam models must omit answer keys. Exact Angular tooling and enforceable import rules are selected during bootstrap, without requiring Nx or another large dependency.
+Angular remains organized by identity, catalog/checkout, learner, teacher, parent reports and content/operations workflows, with feature-owned typed API clients and routing. The shell owns navigation/session UX; shared UI owns no business policies. Child credentials/context remain separate from guardian purchasing authority. Polish responsive next-action/status flows cover pending grading, unavailable seats, rejected files and unresolved service changes. Guards and hidden controls are UX; all decisive checks remain server-side.
