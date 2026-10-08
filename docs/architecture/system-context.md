@@ -1,43 +1,45 @@
 # C4 level 1 — system context
 
-## AS-IS
+AS-IS: visitor → static Nginx landing → demo waitlist in that browser's localStorage. Browser also loads Google Fonts. There is no server signup, educational account or running platform integration.
 
-Visitor → static Nginx landing → local demo waitlist in that visitor's browser. Fonts load from Google Fonts. There is no educational platform or server signup integration. The landing's product branding is not evidence of a separate system boundary.
-
-## TO-BE
+## Target actors and systems
 
 ```mermaid
 flowchart LR
-    parent["Parent / guardian"]
-    child["Child learner"]
+    guardian["Main / additional guardian"]
+    child["Child learner: independent educational login"]
     teacher["Assigned teacher"]
-    methodologist["Methodologist"]
-    support["Support / business admin"]
+    methodologist["Methodologist: scoped quality"]
+    support["Support: scoped case"]
+    admin["Authorized administrator"]
+    owner["Business Owner: product grants"]
     operator["Technical operator / auditor"]
-    platform["eSzkola educational platform\nModular monolith + web UI"]
-    payment["External payment processor"]
+    platform["eSzkola: web UI + modular monolith"]
+    payments["External payment processor"]
     video["External video provider"]
-    email["External transactional email provider"]
-    files["Private S3-compatible storage"]
-    identity["Credential authority\nProposed: external or application-managed"]
-    parent -->|"Purchases, consent, child reports"| platform
-    child -->|"Lessons, practice, exams, consultation"| platform
-    teacher -->|"Assigned groups, grading, feedback"| platform
-    methodologist -->|"Published programs and assessment oversight"| platform
-    support -->|"Scoped operational workflows"| platform
-    operator -->|"Operations / audited limited access"| platform
-    platform -->|"Checkout / verified callbacks and reconciliation"| payment
-    platform -->|"Authorized meeting links"| video
-    parent -->|"Hosted payment interaction"| payment
-    child -->|"Lesson audio/video outside platform"| video
-    teacher -->|"Lesson audio/video outside platform"| video
-    platform -->|"Transactional messages"| email
-    platform -->|"Private attachments and materials"| files
-    platform -.->|"Authentication choice pending ADR-0006"| identity
+    email["Transactional email provider"]
+    objects["Private S3-compatible objects"]
+    credentials["Conditional external credential authority"]
+    guardian -->|"Purchases, consent, related-child access"| platform
+    child -->|"Own learning and consultations"| platform
+    teacher -->|"Programs, assigned learning, grading"| platform
+    methodologist -->|"Content and quality evidence"| platform
+    support -->|"Minimum authorized case data"| platform
+    admin -->|"Scoped administration and recovery"| platform
+    owner -->|"Audited business exceptions / terms decisions"| platform
+    operator -->|"Private operations / restricted audit"| platform
+    guardian -->|"Hosted checkout"| payments
+    platform -->|"Verified payments / refunds"| payments
+    platform -->|"Authorized meeting information"| video
+    child -->|"Lesson media"| video
+    teacher -->|"Lesson media"| video
+    platform -->|"Minimal transactional message"| email
+    platform -->|"Private material / attachment operations"| objects
+    platform -.->|"ADR-0006 pending"| credentials
 ```
 
-The external identity node is conditional, not an accepted added service. Video can initially use administrator-entered links rather than a provider API. Children never initiate payments; guardians interact with the hosted payment provider. Video media bypasses eSzkola and recordings are not baseline functionality.
+External credentials are conditional, not a selected service. Main/additional guardians have different relationship-management authority; child has no purchasing authority. Product Business Owner grants include approved business exceptions, but BA/SA approval occurs solely in repository governance and is not a product feature.
 
-## Trust boundaries
+Video media bypasses eSzkola; links may be entered by authorized staff without a mandatory provider API. No default recording, private teacher contact, public child profiles or open social chat is proposed. Providers receive purpose-minimal data. Existing topology decisions remain unchanged; the actor/authority refinement follows FR-001/FR-005/FR-014/FR-019.
 
-Browsers are untrusted clients. The HTTPS/API boundary authenticates, validates and authorizes each operation. External callbacks require provider-specific verification; browser returns do not confirm payments. PostgreSQL and object storage are private infrastructure; only the backend accesses business tables. Short-lived authorized object URLs are an explicitly controlled exception to backend-proxied bytes. Third-party services receive the minimum information for their purpose. Detailed rules are in [security](security.md) and [integrations](integrations.md).
+Browsers are untrusted. HTTPS/API authenticates, validates and checks resource access. Provider callbacks require verified server authority; browser returns cannot confirm payment/refund. PostgreSQL and S3 buckets remain private; authorized short-lived object access is a controlled exception to backend-proxied bytes. See [security](security.md), [integrations](integrations.md) and [containers](containers.md).

@@ -10,7 +10,7 @@ Sources remain authoritative: [business plan](../biznesplan-platforma-kursy-dla-
 | [Baseline](baseline.md) | Existing architectural subset and unresolved inputs |
 | [Architecture](../architecture/README.md) | Current intended architecture and implementation gaps |
 
-Future outputs belong directly in `docs/requirements/business-analysis.yaml` and `docs/requirements/system-analysis.yaml`; inputs remain in their current locations. These documents do not create analysis outputs, executable schemas, validators or new agent registrations.
+Outputs belong directly in `docs/requirements/business-analysis.yaml` and `docs/requirements/system-analysis.yaml`; inputs remain in their current locations. The [factory](../orchestrator.md) implements executable contract/approval gates. Installing tooling does not create approved analysis outputs or new agent registrations.
 
 ## Machine-readable artifact contract, version 1
 
@@ -49,6 +49,10 @@ The [baseline](baseline.md) predates this contract and is not approved BA/SA. Pr
 
 ## Validation expectations
 
-Until executable BA/SA schemas and validators are implemented in a separate task, review manually: required fields/types, nonempty requirement criteria/sources, unique and stable IDs, valid source/reference targets, complete BR coverage, approved BA revision/content identity, real approval evidence, status/blocker consistency and absence of forbidden design/task content. Malformed or incomplete artifacts must fail the gate. Negative checks should eventually cover dangling BRs, duplicate IDs, stale approvals, changed input digests, unresolved blockers and missing criteria. Semantic role boundaries still require review.
+### Factory external approval evidence
 
-The existing `docs/architecture/validation/check_baseline.py` verifies target architecture model/ADRs/local document links only. It does not enforce this contract, approval gates or BA/SA traceability. No automated BA→SA pipeline is claimed to exist.
+The factory preserves version 1 fields and `business_input` lineage. Before human confirmation it prepares a candidate with `APPROVED` status and embedded `{owner, approved_at, artifact_revision, evidence}` referencing an external `.orchestrator/approvals/` record. It displays the complete candidate and final raw-byte SHA-256. Confirmation approves those exact bytes; external evidence binds type/path/artifact ID/revision/digest and is authoritative. Embedded approval or agent-generated statements alone never pass a gate. Content changes require a new revision and approval; external records remain immutable. See [ADR-0007](../architecture/decisions/0007-deterministic-analysis-orchestration.md).
+
+Factory validates required fields/types, nonempty requirement criteria/sources, unique IDs, references, complete BR coverage, approved BA identity, external approval binding and blocker/status consistency. Negative tests cover dangling BRs, duplicate IDs, stale approvals/digests, blockers and missing criteria. Source truth, stable ID meaning across revisions, absence of disguised design/task content and semantic role boundaries still require human review.
+
+The existing `docs/architecture/validation/check_baseline.py` verifies target architecture model/ADRs/local document links only. Factory separately enforces artifact contracts, approval gates and BA/SA traceability; the baseline checker does not replace those checks.

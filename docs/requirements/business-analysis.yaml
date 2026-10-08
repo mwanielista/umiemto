@@ -1,0 +1,1310 @@
+schema_version: 1
+artifact_type: business_analysis
+artifact_id: eszkola-business-analysis
+revision: 6
+status: APPROVED
+approval:
+  owner: Michał Wanielista
+  approved_at: '2026-10-06T18:48:07.375859+00:00'
+  artifact_revision: 6
+  evidence: .orchestrator/approvals/business-analysis-r6.yaml
+scope: 'MVP eSzkola na rynku polskim: konta opiekunów, profile dzieci, zgody, konfigurowalne
+  programy, katalog, grupy, zapisy, zakupy i płatności w PLN, harmonogram, zewnętrzne
+  lekcje online, materiały, obecności, zadania, przesyłanie odpowiedzi, trening, opcjonalne
+  egzaminy, bezpłatne kolejne próby, postęp, raporty, konsultacje asynchroniczne,
+  administracja, powiadomienia e-mail, uprawnienia i audyt. Struktura, ocenianie,
+  ukończenie i progresja należą do wersji programu. Poza MVP pozostają własne wideokonferencje,
+  marketplace, aplikacje natywne, publiczne profile dzieci, otwarty czat społecznościowy,
+  AI tutor, wiele walut i rozpoznawanie odręcznych równań. Pakiety, premium, B2B i
+  wideokonsultacje 1:1 nie są obowiązkowym MVP. Analiza nie wybiera technologii, architektury,
+  modeli danych ani API i nie tworzy zadań implementacyjnych.'
+sources:
+- id: SRC-PLAN
+  location: docs/biznesplan-platforma-kursy-dla-dzieci.md
+  revision: sha256:e70087992066d72c922a86bb3f14f1f9ccacba280f57f6e40ea982c6848c313c
+- id: SRC-PROGRAM
+  location: docs/szablon-programu-edukacyjnego-modul-4-zajecia.md
+  revision: sha256:07e61f9818cee38569fd40d148b284238a3d4870033feb387286caa1d3423e5d
+- id: SRC-AGENTS
+  location: AGENTS.md
+  revision: sha256:21c313daf8f49b633bb02ea8d37b5c255aadb103300a8bf27a28681c48b7c3b7
+- id: SRC-BASELINE
+  location: docs/requirements/baseline.md
+  revision: sha256:994a815cee178e2ab3a2aa484fea648620d13d64e474a75e7ee94f24720e3934
+- id: SRC-WORKFLOW
+  location: workflow.md
+  revision: sha256:29b371a2db9bd2fede728460654824ce001967caae734b94fd537bf22090e0e9
+- id: SRC-CONTRACT
+  location: docs/requirements/README.md
+  revision: sha256:4e833841f0830832a0d18ab58388957a8688dd2021f2410bf00ee6b64306a55f
+- id: SRC-ROLE
+  location: docs/requirements/business-analyst.md
+  revision: sha256:ecfc4ecb994ea31ec367fac257b15eece4109cdf5e69bfb506e9986f7852430a
+- id: SRC-PRIOR
+  location: docs/requirements/business-analysis.yaml — consumed snapshot revision
+    5 przed zastąpieniem; historyczny zapis, nie aktualne źródło decyzji
+  revision: sha256:79a6daa30416d4f052f93a4f5e01d6057c8c57d27252a17d6922af60f7ad44dc
+goals:
+- id: GOAL-001
+  description: Uczestnik realizuje cele edukacyjne, a opiekun otrzymuje mierzalny
+    obraz postępu i dalszej ścieżki.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §2; §13; §17
+- id: GOAL-002
+  description: Płatny pilotaż weryfikuje popyt, jakość, kontynuację i ekonomikę przed
+    rozszerzeniem działalności.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §17; §§25–26
+- id: GOAL-003
+  description: Nauka i komunikacja są bezpieczne, rozliczalne i dostępne zgodnie z
+    celami ciągłości MVP.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §15; §§18–20
+stakeholders:
+- id: STK-001
+  description: Dzieci i opiekunowie korzystający z edukacji oraz finansujący uczestnictwo.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §3 Opiekun; Dziecko / uczestnik
+- id: STK-002
+  description: Nauczyciele i metodycy odpowiadający za realizację i jakość edukacji
+    zgodnie z uprawnieniami.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §3 Nauczyciel; Metodyk
+- id: STK-003
+  description: Michał Wanielista jest jedynym właścicielem biznesowym, produktu i
+    wymagań oraz biznesowym zatwierdzającym BA i SA.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: Metryka; §3 Właściciel biznesowy
+  - source_id: SRC-AGENTS
+    locator: §1A Business Ownership and Decision Authority
+- id: STK-004
+  description: Konsultanci prawni, podatkowi, bezpieczeństwa i techniczni wspierają
+    gotowość bez przejęcia biznesowej aprobaty.
+  source_refs:
+  - source_id: SRC-AGENTS
+    locator: §1A
+  - source_id: SRC-PLAN
+    locator: §21; Załącznik B
+actors:
+- id: ACT-001
+  description: Opiekun tworzy konto i profil dziecka, kupuje, zarządza zgodami, śledzi
+    udział i składa reklamacje.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §3 Opiekun; §15
+- id: ACT-002
+  description: Dziecko korzysta z własnego panelu edukacyjnego; nie kupuje i nie wykonuje
+    czynności wymagających dorosłego.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §3 Dziecko / uczestnik; §16
+- id: ACT-003
+  description: Nauczyciel tworzy i publikuje program, prowadzi przypisane grupy, ocenia,
+    konsultuje i raportuje; przypisanie do prowadzenia umożliwia wyjątek progresji
+    bez wymogu autorstwa programu.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §3 Nauczyciel; §§4–5; §8
+- id: ACT-004
+  description: Metodyk wspiera jakość treści i ocen; sama rola nie daje prawa obejścia
+    progresji ani zatwierdzania BA/SA.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §3 Metodyk; §8
+  - source_id: SRC-AGENTS
+    locator: §1A
+- id: ACT-005
+  description: Obsługa klienta uczestniczy w sprawach organizacyjnych w granicach
+    nadanych obowiązków i uprawnień.
+  source_refs:
+  - source_id: SRC-AGENTS
+    locator: §22 Authorization
+- id: ACT-006
+  description: Administrator obsługuje uprawnione procesy organizacyjne, płatności,
+    zwroty, incydenty i moderację oraz uprawnione wyjątki progresji i weryfikację
+    niesamodzielności.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §3 Administrator; §§8–9
+- id: ACT-007
+  description: Administrator techniczny lub audytor korzysta wyłącznie z dostępu odpowiadającego
+    nadanym obowiązkom.
+  source_refs:
+  - source_id: SRC-AGENTS
+    locator: §22 Authorization; §23 Security and Privacy
+processes:
+- id: PROC-001
+  description: Wybór oferty, zakup i rozpoczęcie uczestnictwa.
+  actor_refs:
+  - ACT-001
+  - ACT-002
+  - ACT-006
+  steps:
+  - Opiekun tworzy konto, składa wymagane oświadczenia i zakłada profil dziecka.
+  - Poznaje ofertę, cenę brutto w PLN i istotne warunki realizacji.
+  - Wybiera udział; ewentualna nieopłacona rezerwacja nie przekracza 24 godzin.
+  - Skuteczna płatność potwierdza uczestnictwo bez duplikacji operacji.
+  - Rozpoczęcie etapu respektuje skonfigurowane prerequisites albo uprawniony audytowany
+    wyjątek.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §3 Opiekun; §6; §8; §15
+  - source_id: SRC-AGENTS
+    locator: §21 Payments; Learning progression
+- id: PROC-002
+  description: Nauka, ocena, ukończenie i kontynuacja według wersji programu.
+  actor_refs:
+  - ACT-002
+  - ACT-003
+  - ACT-004
+  - ACT-001
+  - ACT-006
+  steps:
+  - Uczestnik realizuje wymagane elementy swojej wersji programu.
+  - Wykonuje zadania, trening i ocenę, jeśli program je przewiduje.
+  - Wynik wymagający ręcznej oceny lub weryfikacji niesamodzielności pozostaje niefinalny.
+  - Rodzina otrzymuje postęp, wynik i rekomendację.
+  - Ukończenie jest ustalane według jawnych kryteriów programu; bez egzaminu i dodatkowych
+    kryteriów wymaga realizacji wszystkich wymaganych elementów.
+  - Niezaliczenie umożliwia kolejną bezpłatną próbę zgodnie z programem; blokuje tylko
+    skonfigurowaną progresję.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §§7–9; §13
+  - source_id: SRC-AGENTS
+    locator: §21 Manual grading; Retakes
+- id: PROC-003
+  description: Ograniczona konsultacja asynchroniczna.
+  actor_refs:
+  - ACT-002
+  - ACT-001
+  - ACT-003
+  - ACT-006
+  steps:
+  - Uczestnik aktywnego programu rozpoczyna w platformie nowy wątek w tygodniowym
+    limicie.
+  - Nauczyciel odpowiada z celem najwyżej dwóch dni roboczych.
+  - Odpowiedzi w istniejącym wątku nie zużywają nowego limitu.
+  - Komunikacja podlega moderacji, audytowi i archiwizacji oraz jest widoczna uprawnionemu
+    opiekunowi.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §12
+  - source_id: SRC-AGENTS
+    locator: §21 Consultations
+- id: PROC-004
+  description: Przygotowanie, publikacja i zmiana programu.
+  actor_refs:
+  - ACT-003
+  - ACT-004
+  - ACT-006
+  - ACT-001
+  steps:
+  - Nauczyciel przygotowuje strukturę, cele, warunki udziału, ocenianie i ukończenie.
+  - Treści są oceniane pod względem jakości, dostosowań i legalności materiałów.
+  - Nauczyciel publikuje identyfikowalną wersję.
+  - Uczestnictwo wskazuje wersję realizowanej usługi, a próby zachowują podstawę oceniania.
+  - Istotne pogorszenie zakupionych warunków wymaga akceptacji opiekuna albo rozpatrzenia
+    alternatywy i zwrotu zgodnie z BR-018.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §§4–5; §14
+  - source_id: SRC-PROGRAM
+    locator: Część A §§12, 15
+  - source_id: SRC-AGENTS
+    locator: §21 Versioning
+- id: PROC-005
+  description: Obsługa zmian, zakłóceń, reklamacji i incydentów.
+  actor_refs:
+  - ACT-001
+  - ACT-002
+  - ACT-003
+  - ACT-005
+  - ACT-006
+  steps:
+  - Uprawniona osoba rejestruje zgłoszenie lub zmianę.
+  - Uczestnik i opiekun otrzymują informację o istotnej zmianie bez zbędnej zwłoki.
+  - Nieobecność nauczyciela prowadzi do zastępstwa albo nowego terminu; awaria uniemożliwiająca
+    zajęcia prowadzi do nowego terminu.
+  - Pogorszenie zakupionych warunków jest rozpatrywane według zasad akceptacji i zwrotu.
+  - Incydenty bezpieczeństwa dzieci podlegają procedurze ustalonej przed produkcją;
+    istotne operacje pozostawiają audyt.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §10; §§14–15; §20; Załącznik B
+business_requirements:
+- id: BR-001
+  description: Opiekun zarządza uczestnictwem dziecka, a dziecko posiada odrębny dostęp
+    edukacyjny.
+  rationale: Zapewnić odpowiedzialność dorosłego oraz dostęp uczestnika do nauki.
+  priority: MUST
+  acceptance_criteria:
+  - Opiekun może utworzyć konto i profil dziecka oraz zarządzać zakupami i wymaganymi
+    zgodami.
+  - Dziecko może być powiązane z więcej niż jednym uprawnionym opiekunem.
+  - Osoba tworząca konto opiekuna oświadcza pełnoletność, uprawnienie do działania
+    wobec dziecka i prawdziwość informacji; finalna treść podlega przeglądowi prawnemu.
+  - Dziecko korzysta z panelu uczestnika i nie dokonuje samodzielnych zakupów ani
+    czynności wymagających osoby dorosłej.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §3 Opiekun; Dziecko / uczestnik; §15; §16
+- id: BR-002
+  description: Oferta przedstawia cele i istotne warunki programu oraz udziału przed
+    zakupem.
+  rationale: Umożliwić świadomy wybór usługi.
+  priority: MUST
+  acceptance_criteria:
+  - Opiekun widzi przedmiot, grupę docelową, określone wymagania wejściowe, cele,
+    warunki realizacji i pełną cenę brutto w PLN.
+  - Przedstawione liczba i długość zajęć, limity grupy oraz dostęp do materiałów odpowiadają
+    ofercie i wersji programu.
+  - Definicja modułu, wersja programu, grupa, harmonogram i zapis pozostają rozróżnialne
+    biznesowo.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §4; §6; §13; Załącznik A
+  - source_id: SRC-AGENTS
+    locator: §21 Educational module model; Money
+- id: BR-003
+  description: Kwalifikacja uwzględnia wymagania wejściowe i diagnozę przewidziane
+    w programie.
+  rationale: Dopasować uczestnictwo do poziomu i warunków edukacyjnych.
+  priority: MUST
+  acceptance_criteria:
+  - Jeśli program ustanawia wymagania wejściowe, kwalifikacja odnosi się do tych wymagań.
+  - Jeśli program stosuje diagnozę, jej wynik i rekomendacja odpowiadają jego kryteriom
+    bez globalizacji progów przykładu matematycznego.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §4; §17 Kontynuacja
+  - source_id: SRC-PROGRAM
+    locator: Część A §3
+- id: BR-004
+  description: Zakup i potwierdzenie uczestnictwa respektują ograniczenie rezerwacji
+    i jednoznaczność płatności.
+  rationale: Kontrolować dostępność miejsc i skutki wpłat.
+  priority: MUST
+  acceptance_criteria:
+  - Zakup identyfikuje uczestnika, ofertę, kwotę, PLN i stan płatności.
+  - Jeśli utrzymywana jest nieopłacona rezerwacja miejsca, nie trwa dłużej niż 24
+    godziny.
+  - Skuteczna płatność potwierdza uczestnictwo.
+  - Powtórne potwierdzenie tej samej płatności nie tworzy dodatkowych płatności, zapisów
+    ani operacji biznesowych.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §6; §16
+  - source_id: SRC-AGENTS
+    locator: §21 Payments; Money
+- id: BR-005
+  description: Zakup następnika jest odrębny od warunków jego rozpoczęcia, a progresja
+    jest konfigurowalna.
+  rationale: Oddzielić zobowiązanie handlowe od warunków edukacyjnych.
+  priority: MUST
+  acceptance_criteria:
+  - Skonfigurowany warunek zaliczenia dotyczy rozpoczęcia kolejnego etapu, bez globalnej
+    blokady wcześniejszego zakupu.
+  - Przy braku warunku progresji nie wymaga się globalnie zaliczenia poprzednika.
+  - Wymagane finalne zaliczenie nie jest zastępowane wynikiem wstępnym.
+  - Wyjątek może przyznać nauczyciel przypisany do prowadzenia programu lub grupy,
+    uprawniony administrator albo właściciel biznesowy; nauczyciel nie musi być autorem.
+  - Sama rola metodyka nie uprawnia do wyjątku; wyjątek rejestruje osobę, uczestnika,
+    program lub etap, czas i uzasadnienie.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §8
+  - source_id: SRC-AGENTS
+    locator: §21 Learning progression; Manual grading
+  - source_id: SRC-PRIOR
+    locator: BR-005 — historia odrębności zakupu i rozpoczęcia, bez przyjęcia historycznych
+      wariantów rozliczenia
+- id: BR-006
+  description: Uczestnik otrzymuje harmonogram i informacje do udziału, a nauczyciel
+    rejestruje obecność.
+  rationale: Zapewnić przewidywalny przebieg zajęć.
+  priority: MUST
+  acceptance_criteria:
+  - Uczestnik i opiekun widzą harmonogram oraz informacje potrzebne do dołączenia
+    do zewnętrznych lekcji.
+  - Liczba i długość zajęć oraz limity grupy odpowiadają programowi.
+  - Nauczyciel rejestruje obecność; harmonogram prezentuje czas Europe/Warsaw z uwzględnieniem
+    zmiany czasu.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §3 Nauczyciel; §4; §16
+  - source_id: SRC-AGENTS
+    locator: §21 Time; §4 External systems
+- id: BR-007
+  description: Uczestnik korzysta z materiałów i zadań oraz przesyła odpowiedzi do
+    oceny.
+  rationale: Utrwalać umiejętności i udokumentować realizację programu.
+  priority: MUST
+  acceptance_criteria:
+  - Uczestnik odczytuje udostępnione materiały i zadania oraz przesyła odpowiedzi.
+  - Zadania wymagające ręcznej oceny są dostępne uprawnionemu nauczycielowi do sprawdzenia.
+  - Dostęp do materiałów respektuje okres określony w ofercie lub programie, bez globalnego
+    okresu 90 dni.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §13; §16
+  - source_id: SRC-PROGRAM
+    locator: Część A §§6–7
+  - source_id: SRC-AGENTS
+    locator: §21 Manual grading
+- id: BR-008
+  description: Uczestnik korzysta z treningu i próbnego sprawdzania przewidzianych
+    przez program.
+  rationale: Umożliwić przygotowanie do oceny i informację zwrotną.
+  priority: MUST
+  acceptance_criteria:
+  - Uczestnik wykonuje udostępniony trening i otrzymuje przewidziane wskazówki lub
+    wyjaśnienia.
+  - Trening i próbne sprawdzanie są odrębne od właściwego egzaminu i nie ujawniają
+    jego klucza przed uprawnionym przeglądem.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §4; §13; §16
+  - source_id: SRC-PROGRAM
+    locator: Część A §7
+  - source_id: SRC-AGENTS
+    locator: §24 UI and Accessibility
+- id: BR-009
+  description: Ocenianie i ukończenie wynikają z jawnych kryteriów właściwej wersji
+    programu.
+  rationale: Dopasować ocenę i ukończenie do zróżnicowanych programów.
+  priority: MUST
+  acceptance_criteria:
+  - Program może posiadać egzamin lub inny warunek ukończenia; egzamin nie jest globalnie
+    obowiązkowy.
+  - Progi, kryteria efektów, czas i zasady oceniania odpowiadają wersji programu;
+    75% nie jest globalnym progiem.
+  - Bez egzaminu i dodatkowych kryteriów ukończenie następuje po realizacji wszystkich
+    elementów oznaczonych jako wymagane.
+  - Status ukończenia nie oznacza automatycznie opanowania wszystkich efektów, jeśli
+    program nie wymaga ich opanowania.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §4; §7; §9
+  - source_id: SRC-AGENTS
+    locator: §21 Assessment rules
+- id: BR-010
+  description: Wynik wstępny jest odrębny od finalnego, a próba zachowuje historyczną
+    podstawę oceniania.
+  rationale: Zapewnić wiarygodność wyników i ochronę przed retroaktywnymi zmianami.
+  priority: MUST
+  acceptance_criteria:
+  - Próba zachowuje dokładne wersje programu, pytań, kryteriów odpowiedzi i zasad
+    oceny; późniejsza edycja nie zmienia historycznych wyników.
+  - Wymagana ręczna ocena pozostawia wynik wstępny do zatwierdzenia i nie odblokowuje
+    wymagającej zaliczenia progresji.
+  - Uprawniona korekta wyniku pozostawia ślad audytowy.
+  - Uzasadnione podejrzenie niesamodzielności pozostawia wynik niefinalny do weryfikacji
+    przez uprawnionego nauczyciela lub administratora; decyzja, osoba, czas i uzasadnienie
+    są audytowalne.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §9; §20
+  - source_id: SRC-AGENTS
+    locator: §21 Versioning; Manual grading; §23 Security and Privacy
+- id: BR-011
+  description: Wszystkie poprawki i kolejne próby zaliczenia są bezpłatne.
+  rationale: Umożliwić poprawę bez premiowania niezaliczeń przychodem.
+  priority: MUST
+  acceptance_criteria:
+  - Żadna kolejna próba zaliczenia nie powoduje opłaty ani wymogu zakupu próby.
+  - Próbę realizuje się według zasad programu; bezpłatność sama nie ustanawia nieograniczonej
+    liczby prób.
+  - Finalne zaliczenie usuwa odpowiednią blokadę skonfigurowanej progresji; bez takiego
+    warunku brak zaliczenia nie blokuje kontynuacji.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §9; §25; Załącznik C
+  - source_id: SRC-AGENTS
+    locator: §21 Retakes; Learning progression
+- id: BR-012
+  description: Opiekun otrzymuje raport postępu, a uczestnik zrozumiały następny krok.
+  rationale: Uczynić wyniki nauki użytecznymi dla rodziny.
+  priority: MUST
+  acceptance_criteria:
+  - Raport przedstawia adekwatne informacje o frekwencji, realizacji wymaganych elementów,
+    zastosowanych ocenach i postępie.
+  - Dla elementów przewidzianych programem raport obejmuje osiągnięcie efektów, mocne
+    strony, obszary pracy i rekomendację.
+  - Uprawniony opiekun widzi informacje swojego dziecka; uczestnik otrzymuje zrozumiałe
+    następne działanie.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §3 Opiekun; §13; §16
+  - source_id: SRC-PROGRAM
+    locator: Część A §13
+  - source_id: SRC-AGENTS
+    locator: §24 UI and Accessibility
+- id: BR-013
+  description: Konsultacje mają tygodniowy limit nowych wątków i docelowy termin odpowiedzi.
+  rationale: Zapewnić kontrolowaną pomoc edukacyjną.
+  priority: MUST
+  acceptance_criteria:
+  - Dla aktywnego programu uczestnik może utworzyć jeden nowy wątek w tygodniu poniedziałek–niedziela
+    Europe/Warsaw.
+  - Niewykorzystany limit nie przechodzi na kolejny tydzień; odpowiedzi w istniejącym
+    wątku nie zużywają nowego limitu.
+  - Docelowy czas odpowiedzi nauczyciela wynosi najwyżej dwa dni robocze.
+  - Komunikacja odbywa się na platformie, podlega moderacji, audytowi i archiwizacji
+    oraz jest widoczna uprawnionemu opiekunowi.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §12
+  - source_id: SRC-AGENTS
+    locator: §21 Consultations
+- id: BR-014
+  description: Dostęp zależy od roli i uprawnienia do konkretnego dziecka, grupy lub
+    sprawy.
+  rationale: Chronić dane i rozdzielić obowiązki.
+  priority: MUST
+  acceptance_criteria:
+  - Opiekun bez uprawnienia nie uzyskuje danych dziecka, wyników ani konsultacji.
+  - Nauczyciel bez przypisania nie uzyskuje danych edukacyjnych grupy.
+  - Uprawnienia metodyka, obsługi i administratorów są rozdzielone według odpowiedzialności.
+  source_refs:
+  - source_id: SRC-AGENTS
+    locator: §22 Authorization
+  - source_id: SRC-PLAN
+    locator: §3; §18
+- id: BR-015
+  description: Ważne działania zachowują historię dostępną uprawnionemu audytowi.
+  rationale: Zapewnić rozliczalność decyzji i operacji.
+  priority: MUST
+  acceptance_criteria:
+  - Zmiany ocen i uprawnień, wyjątki progresji, weryfikacja niesamodzielności, istotne
+    operacje administracyjne i moderacja wymagająca rozliczalności pozostawiają audyt.
+  - Audyt wskazuje wykonawcę, działanie i czas oraz uzasadnienie, gdy jest wymagane.
+  - Dostęp do audytu odpowiada nadanym uprawnieniom.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §8; §9; §20
+  - source_id: SRC-AGENTS
+    locator: §22 Authorization; §23 Security and Privacy
+- id: BR-016
+  description: Rodzina otrzymuje informacje związane z zakupem i realizacją uczestnictwa.
+  rationale: Zapewnić terminowy dostęp do informacji organizacyjnych.
+  priority: MUST
+  acceptance_criteria:
+  - Powiadomienia obejmują zakup lub płatność, zapis i ważne zdarzenia realizacji
+    programu.
+  - O zmianie terminu, odwołaniu lub istotnej zmianie organizacyjnej uczestnik i opiekun
+    są informowani przez platformę bez zbędnej zwłoki.
+  - MVP obsługuje powiadomienia e-mail; nie przyjmuje globalnego liczbowego SLA zmian
+    zajęć.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §10; §20
+  - source_id: SRC-AGENTS
+    locator: §3 MVP Scope
+- id: BR-017
+  description: Nauczyciel tworzy, wersjonuje i publikuje konfigurowalny program z
+    kontrolą jakości treści.
+  rationale: Obsłużyć różne przedmioty i grupy bez globalizacji przykładu.
+  priority: MUST
+  acceptance_criteria:
+  - Program pozwala określić przedmiot, grupę docelową, wymagania wejściowe, strukturę,
+    cele i efekty.
+  - Liczba i długość zajęć, limity grupy i okres dostępu są konfigurowalne; cztery
+    lekcje i konkretna klasa nie ograniczają platformy.
+  - Program określa stosowane zasady oceniania, ukończenia i progresji.
+  - Można odróżnić wersję roboczą od opublikowanej oraz wskazać wersję realizowanego
+    uczestnictwa.
+  - Zmiany nie pogarszają niejawnie i retroaktywnie zakupionych warunków ani historycznej
+    podstawy oceniania.
+  - Kontrola treści obejmuje mierzalność efektów, dostosowania i legalność materiałów;
+    przykładowe podpisy szablonu nie zatwierdzają BA.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §§4–5; §14; Załącznik A
+  - source_id: SRC-PROGRAM
+    locator: Część A §§12, 15
+  - source_id: SRC-AGENTS
+    locator: §21 Versioning
+- id: BR-018
+  description: Sprzedaż przedstawia cenę brutto w PLN i respektuje zasady zmian zakupionych
+    warunków oraz zwrotów.
+  rationale: Określić zobowiązania wobec kupującego.
+  priority: MUST
+  acceptance_criteria:
+  - MVP sprzedaje wyłącznie w PLN; cena brutto jest znana przed zakupem i konfigurowalna
+    per oferta lub program.
+  - Istotne pogorszenie zakupionych warunków wymaga akceptacji opiekuna.
+  - Przy braku akceptacji i niemożliwości pierwotnej realizacji organizator oferuje
+    zaakceptowaną alternatywę albo zwrot za niezrealizowaną część usługi.
+  - Gdy świadczenie nie rozpoczęło się i nie może zostać wykonane na zakupionych warunkach,
+    zwrot obejmuje całą zapłaconą za nie kwotę.
+  - Nieobecność uczestnika na prawidłowo zrealizowanych zajęciach nie powoduje automatycznego
+    zwrotu.
+  - Podatki, dokumenty sprzedaży i finalne warunki konsumenckie są poddane przeglądowi
+    przed sprzedażą produkcyjną; nie przyjęto uniwersalnego VAT.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §6; §10; §14; §21
+  - source_id: SRC-AGENTS
+    locator: §21 Money; Retakes
+- id: BR-019
+  description: Dane dzieci są minimalizowane i przetwarzane zgodnie z politykami zatwierdzonymi
+    przed produkcją.
+  rationale: Ograniczyć przetwarzanie i zapewnić wykonanie praw osób.
+  priority: MUST
+  acceptance_criteria:
+  - Zbierane i przechowywane są wyłącznie dane potrzebne do celów usługi.
+  - Nie ma publicznych profili dzieci ani otwartego kontaktu niepowiązanych użytkowników.
+  - Lekcje nie są domyślnie nagrywane; ewentualne nagrywanie wymaga osobnego celu,
+    podstawy prawnej, zasad dostępu, retencji i informacji dla uczestników.
+  - Przed produkcją zatwierdzone są polityka prywatności, retencja, prawa osób, treści
+    zgód i wymagane umowy z dostawcami; brakujące wartości nie są zastępowane domyślnymi
+    decyzjami BA.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §15; §21; §23; Załącznik B
+  - source_id: SRC-AGENTS
+    locator: §23 Security and Privacy
+- id: BR-020
+  description: Praca nauczyciela z dziećmi wymaga przygotowania i procedur ochrony
+    małoletnich.
+  rationale: Zapewnić organizacyjne warunki bezpieczeństwa.
+  priority: MUST
+  acceptance_criteria:
+  - Przed pracą z dziećmi nauczyciel przechodzi wymagane prawem weryfikacje i dostarcza
+    wymagane dokumenty lub oświadczenia.
+  - Nauczyciel poznaje standardy ochrony małoletnich i zasady komunikacji oraz przechodzi
+    szkolenia bezpieczeństwa i platformy.
+  - Kontakt dotyczący usługi odbywa się przez kontrolowane kanały; dzieci nie są kierowane
+    do prywatnych kont nauczycieli.
+  - Szczegóły prawne i organizacyjne oraz procedura incydentów są ustalone przed produkcją.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §15; §21; Załącznik B
+  - source_id: SRC-AGENTS
+    locator: §21 Consultations
+- id: BR-021
+  description: Organizator obsługuje zakłócenia i sprawy organizacyjne zgodnie z uprawnieniami
+    i warunkami usługi.
+  rationale: Zapewnić dalszą realizację albo rozliczenie usługi.
+  priority: MUST
+  acceptance_criteria:
+  - Nieobecność nauczyciela prowadzi do zastępstwa albo nowego terminu.
+  - Awaria uniemożliwiająca zajęcia prowadzi do nowego terminu.
+  - Uprawniona administracja obsługuje grupy, reklamacje, zwroty, incydenty i moderację.
+  - Proces sytuacji wyjątkowych i finalne zasady reklamacyjne są ustalone przed produkcją;
+    szczegóły programu nie stają się globalnym SLA.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §3 Administrator; §10; §14; §21; Załącznik B
+- id: BR-022
+  description: Interfejs jest czytelny i uwzględnia urządzenie oraz potrzeby edukacyjne
+    uczestnika.
+  rationale: Ułatwić samodzielną realizację nauki.
+  priority: MUST
+  acceptance_criteria:
+  - Uczestnik widzi następne działanie i zrozumiałe komunikaty w responsywnym polskim
+    interfejsie.
+  - Ocena dostępności odnosi się do celu projektowego WCAG 2.2 AA.
+  - Przewidziane dostosowania zachowują mierzoną umiejętność.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §18
+  - source_id: SRC-AGENTS
+    locator: §4 Frontend; §24 UI and Accessibility
+  - source_id: SRC-PROGRAM
+    locator: Część A §11
+- id: BR-023
+  description: Programy matematyczne obsługują treści matematyczne i ocenę odpowiedzi
+    według kryteriów zadania.
+  rationale: Zapewnić czytelność matematyki i właściwą ocenę umiejętności.
+  priority: MUST
+  acceptance_criteria:
+  - Uczestnik odczytuje wzory i równania oraz udziela odpowiedzi przewidzianych w
+    zadaniu.
+  - Odpowiedzi są oceniane według kryteriów zadania; nie wymaga się rozpoznawania
+    odręcznych równań w MVP.
+  - Klucz egzaminu nie jest ujawniany przed zakończeniem oceny i uprawnionym przeglądem.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §16; §23
+  - source_id: SRC-AGENTS
+    locator: §24 UI and Accessibility
+- id: BR-024
+  description: Pilot jest oceniany według jednoznacznych KPI ukończenia, kontynuacji,
+    frekwencji i satysfakcji oraz walidacji ekonomiki.
+  rationale: Oprzeć rozwój na wynikach pilota.
+  priority: MUST
+  acceptance_criteria:
+  - Cel ukończenia wynosi co najmniej 70%; mianownikiem są uczestnicy rozpoczynający
+    mierzony program lub etap, a licznikiem uczestnicy ze statusem ukończenia według
+    swojej wersji programu.
+  - Cel kontynuacji wynosi co najmniej 60% klientów, których dziecko ukończyło wymagany
+    etap, ma opublikowaną płatną logiczną kontynuację i spełnia jej warunki wejściowe.
+  - Zakup kontynuacji jest mierzony w 60 dni od późniejszej daty ukończenia etapu
+    albo udostępnienia możliwości zakupu; brak odpowiedniej oferty wyłącza klienta
+    z mianownika.
+  - Cel agregowanej frekwencji wynosi co najmniej 80%; mierzy się iloraz łącznych
+    obecności i łącznych możliwych obecności na zrealizowanych zajęciach.
+  - Odwołane i niezrealizowane zajęcia nie wchodzą do mianownika frekwencji; przełożone
+    liczy się jeden raz.
+  - Cel satysfakcji wynosi średnio co najmniej 4,2/5; po zakończeniu programu lub
+    etapu zbiera się jedną odpowiedź opiekuna głównego na uczestnictwo.
+  - Raport ankiet zawiera średnią, liczbę wysłanych ankiet, liczbę odpowiedzi i response
+    rate; ekonomika pilota jest walidowana bez przyjmowania historycznych przykładowych
+    marż jako obowiązującego celu.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §11; §17; §24; §26
+- id: BR-025
+  description: MVP obsługuje początkowo co najmniej 100 aktywnych rodzin i 10 równoczesnych
+    zajęć oraz umożliwia rozwój do około 10 000 rodzin i 200 zajęć.
+  rationale: Określić obciążenie początkowe i biznesowy kierunek rozwoju.
+  priority: MUST
+  acceptance_criteria:
+  - Ocena początkowej zdolności MVP obejmuje co najmniej 100 aktywnych rodzin i 10
+    równocześnie trwających zajęć.
+  - Rozwój do około 10 000 aktywnych rodzin i 200 równoczesnych zajęć nie wymaga fundamentalnej
+    przebudowy domeny.
+  - Cel przyszłej skali nie jest wymaganiem uruchomienia pilota z takim obciążeniem.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §18; §26
+- id: BR-026
+  description: MVP realizuje cele 99,5% miesięcznej dostępności, RPO do 24 godzin
+    i RTO do czterech godzin.
+  rationale: Ograniczyć przerwy usługi i utratę danych biznesowych.
+  priority: MUST
+  acceptance_criteria:
+  - Pomiar 99,5% obejmuje kontrolowane przez eSzkola logowanie, katalog, zakup i zapis,
+    panele opiekuna i uczestnika, podstawowe funkcje nauczyciela, harmonogram, informacje
+    do zajęć, materiały, oddawanie prac, wyniki, raporty, progresję i konsultacje.
+  - Awaria blokująca podstawowy proces wchodzi do pomiaru.
+  - Zapowiedziane prace serwisowe mogą być wyłączone po poinformowaniu użytkowników
+    co najmniej 24 godziny wcześniej.
+  - Awaria zewnętrznej wideokonferencji nie stanowi automatycznie niedostępności eSzkola,
+    jeśli kontrolowane funkcje eSzkola działają.
+  - Cel RPO nie przekracza 24 godzin, a RTO czterech godzin; metoda pomiaru i testu
+    odtworzenia podlega dalszej analizie.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §§18–19; Załącznik B
+business_rules:
+- id: RULE-001
+  description: Zakupy i czynności wymagające dorosłego należą do opiekuna; więcej
+    niż jeden opiekun może być powiązany z dzieckiem.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §3 Opiekun; Dziecko / uczestnik
+- id: RULE-002
+  description: Progresja jest konfigurowalna; wyjątek przysługuje przypisanemu nauczycielowi,
+    uprawnionemu administratorowi lub właścicielowi, nie metodykowi z samej roli.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §8
+- id: RULE-003
+  description: Wynik wstępny lub wymagający weryfikacji nie zastępuje finalnego zaliczenia;
+    historyczna podstawa oceny pozostaje zachowana.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §9
+  - source_id: SRC-AGENTS
+    locator: §21 Versioning; Manual grading
+- id: RULE-004
+  description: Wszystkie poprawki i kolejne próby zaliczenia są bezpłatne i nie stanowią
+    źródła przychodu.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §9; §25
+- id: RULE-005
+  description: Sprzedaż MVP odbywa się w PLN po ujawnieniu pełnej ceny brutto; VAT
+    i dokumenty sprzedaży wymagają przeglądu przed produkcyjną sprzedażą.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §6; §21
+- id: RULE-006
+  description: Powtórne potwierdzenie tej samej płatności nie powiela płatności, zapisów
+    ani operacji biznesowych.
+  source_refs:
+  - source_id: SRC-AGENTS
+    locator: §21 Payments
+- id: RULE-007
+  description: Aktywny program umożliwia jeden nowy wątek uczestnika tygodniowo; odpowiedzi
+    nie zużywają limitu, który nie przechodzi na kolejny tydzień.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §12
+- id: RULE-008
+  description: Dostęp wymaga właściwej roli i uprawnienia do konkretnego zasobu.
+  source_refs:
+  - source_id: SRC-AGENTS
+    locator: §22 Authorization
+- id: RULE-009
+  description: Niezaliczenia nie są źródłem przychodu; rozwój sprzedaży opiera się
+    na płatnych ofertach edukacyjnych.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §25
+- id: RULE-010
+  description: Dostosowania zachowują mierzoną umiejętność, a materiały mają podstawę
+    legalnego wykorzystania.
+  source_refs:
+  - source_id: SRC-PROGRAM
+    locator: Część A §§11–12, 15
+- id: RULE-011
+  description: Struktura programu jest konfigurowalna; cztery lekcje, konkretna klasa,
+    cena i grupa z przykładu są parametrami eksperymentu.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §4; §24; Załącznik C
+- id: RULE-012
+  description: Ewentualna nieopłacona rezerwacja miejsca trwa najwyżej 24 godziny;
+    skuteczna płatność potwierdza uczestnictwo.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §6
+- id: RULE-013
+  description: Nieobecność uczestnika na zrealizowanych zajęciach nie daje automatycznego
+    zwrotu; brak nauczyciela wymaga zastępstwa albo nowego terminu, a awaria nowego
+    terminu.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §10
+- id: RULE-014
+  description: Lekcje nie są domyślnie nagrywane; nagrywanie wymaga osobnego ustalenia
+    celu, podstawy prawnej, dostępu, retencji i informacji.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §15
+glossary:
+- id: TERM-001
+  term: Module
+  description: Konfigurowalny etap programu, bez globalnej liczby lekcji lub obowiązkowego
+    egzaminu.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §4; §7
+- id: TERM-002
+  term: ProgramVersion
+  description: Identyfikowalna wersja określająca realizowaną usługę, strukturę, treść
+    i zasady programu.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §5; §7
+- id: TERM-003
+  term: ScheduledGroup
+  description: Konkretna grupa realizująca program z nauczycielem i harmonogramem,
+    odrębna od definicji modułu.
+  source_refs:
+  - source_id: SRC-AGENTS
+    locator: §21 Educational module model
+- id: TERM-004
+  term: Enrollment
+  description: Uczestnictwo dziecka w realizacji oferty, odrębne od definicji programu
+    i płatności.
+  source_refs:
+  - source_id: SRC-AGENTS
+    locator: §21 Educational module model; Payments
+- id: TERM-005
+  term: LearningOutcome
+  description: Obserwowalna umiejętność z kryterium sukcesu i sposobem weryfikacji.
+  source_refs:
+  - source_id: SRC-PROGRAM
+    locator: Część A §4
+- id: TERM-006
+  term: PreliminaryResult
+  description: Wynik oczekujący wymaganej oceny lub weryfikacji, niewystarczający
+    do spełnienia warunku finalnego zaliczenia.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §9
+  - source_id: SRC-AGENTS
+    locator: §21 Manual grading
+- id: TERM-007
+  term: FinalApprovedResult
+  description: Wynik po zakończeniu wymaganej oceny i weryfikacji według zachowanej
+    podstawy oceniania.
+  source_refs:
+  - source_id: SRC-AGENTS
+    locator: §21 Manual grading; Versioning
+- id: TERM-008
+  term: Retake
+  description: Bezpłatna kolejna próba zaliczenia zgodna z zasadami programu.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §9
+- id: TERM-009
+  term: Consultation
+  description: Ograniczony asynchroniczny wątek w aktywnym programie, widoczny uprawnionemu
+    opiekunowi.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §12
+- id: TERM-010
+  term: RemedialPath
+  description: Trening, program przygotowawczy lub konsultacja pomagające uzupełnić
+    braki; konkretna ścieżka zależy od programu.
+  source_refs:
+  - source_id: SRC-PROGRAM
+    locator: Część A §10 Reguła decyzji
+- id: TERM-011
+  term: ActiveFamily
+  description: Rodzina liczona jako aktywna w ocenie skali usługi; historyczna definicja
+    obejmowała dziecko z aktywnym dostępem do trwającego lub opłaconego programu w
+    miesiącu. Aktualny plan nie potwierdza szczegółowej jednostki pomiaru; należy
+    ją ustalić w Q-017.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §18
+  - source_id: SRC-PRIOR
+    locator: TERM-011; Q-014 / resolution — definicja historyczna
+- id: TERM-012
+  term: ConcurrentLesson
+  description: Zajęcia odbywające się równocześnie z innymi zajęciami; liczbę jednostek
+    pomiaru skali należy doprecyzować w Q-017 bez utożsamienia jej z liczbą uczestników.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §18
+  - source_id: SRC-PRIOR
+    locator: TERM-012 — definicja historyczna
+assumptions:
+- id: ASM-001
+  description: Popyt, ceny eksperymentów i ekonomika pozostają hipotezami do walidacji;
+    przykładowe ceny 299/399/499 PLN i mała grupa nie są globalnymi wymaganiami.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §24; §26
+constraints:
+- id: CON-001
+  description: MVP wyznaczają aktualny plan i AGENTS; opcjonalne produkty nie rozszerzają
+    go automatycznie.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §16; §23; §25
+  - source_id: SRC-AGENTS
+    locator: §3 MVP Scope
+- id: CON-002
+  description: Kanoniczny plan 2.0 zastępuje sprzeczne starsze decyzje biznesowe,
+    w tym płatne poprawki, globalny egzamin i automatyczny wyjątek metodyka. Szablon
+    pozostaje pomocniczy i przykładowy.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §1; §27; Załącznik C
+  - source_id: SRC-AGENTS
+    locator: §1A
+- id: CON-003
+  description: Mandaty techniczne AGENTS i Accepted ADR pozostają ograniczeniami projektu;
+    historyczny biznesplan nie wybiera technologii, a BA i SA nie projektują architektury
+    ani nie wybierają stosu.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §22
+  - source_id: SRC-AGENTS
+    locator: §4; §6; §16
+  - source_id: SRC-ROLE
+    locator: Responsibilities and boundaries
+  - source_id: SRC-WORKFLOW
+    locator: Stage ownership and gates
+- id: CON-004
+  description: Baseline SR-01–SR-15 nie jest zatwierdzonym BA/SA. Jego ID i linki
+    pozostają zachowane; niezgodności wymagają późniejszego przeglądu wpływu i jawnej
+    migracji śledzenia.
+  source_refs:
+  - source_id: SRC-BASELINE
+    locator: Status; SR-03; SR-04; SR-05
+  - source_id: SRC-CONTRACT
+    locator: Revision, approval and traceability policy
+- id: CON-005
+  description: Dokładne bajty rewizji BA wymagają jawnej aprobaty Michała Wanielisty
+    przez kontrolera i zewnętrznego dowodu z digestem. approved_ba_evidence jest null;
+    źródło biznesowe nie zatwierdza artefaktu.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §3 Właściciel biznesowy; §28
+  - source_id: SRC-CONTRACT
+    locator: Factory external approval evidence
+- id: CON-006
+  description: Finalne kwestie prawne, podatkowe, retencyjne i proceduralne są bramkami
+    przed produkcją lub produkcyjną sprzedażą. Nie zastępuje się ich założeniami ani
+    aprobatą konsultanta zamiast właściciela.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §6; §15; §21; Załącznik B
+  - source_id: SRC-AGENTS
+    locator: §1A
+- id: CON-007
+  description: SRC-PRIOR zachowuje historię rewizji 5 i jej odpowiedzi, nie nadaje
+    aktualnej mocy decyzyjnej. Aktualny plan zamyka Q-016; nie trzeba odzyskiwać brakujących
+    historycznych źródeł.
+  source_refs:
+  - source_id: SRC-PLAN
+    locator: §1; §§27–28
+  - source_id: SRC-PRIOR
+    locator: revision; approval; open_questions
+open_questions:
+- id: Q-001
+  question: Kto może zatwierdzić dokładną rewizję BA?
+  severity: BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - STK-003
+  - CON-005
+  status: RESOLVED
+  resolution:
+    answer: Jedynym biznesowym zatwierdzającym jest Michał Wanielista. Każda dokładna
+      rewizja wymaga osobnej aprobaty kontrolera i zewnętrznego dowodu; obecna propozycja
+      jej nie posiada.
+    evidence: 'SRC-PLAN §3 Właściciel biznesowy, §28; SRC-AGENTS §1A; SRC-CONTRACT
+      Factory external approval evidence. Historia odpowiedzi: SRC-PRIOR Q-001 / resolution.'
+- id: Q-002
+  question: Czy cztery lekcje i grupa docelowa przykładu są ograniczeniami globalnymi?
+  severity: BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-002
+  - BR-006
+  - BR-017
+  - RULE-011
+  - TERM-001
+  status: RESOLVED
+  resolution:
+    answer: Nie. Program jest konfigurowalny i nie jest globalnie ograniczony przedmiotem,
+      klasą, wiekiem, liczbą lub długością lekcji ani grupą przykładu.
+    evidence: 'SRC-PLAN §§2, 4, 24, Załącznik C. Historia odpowiedzi: SRC-PRIOR Q-002
+      / resolution.'
+- id: Q-003
+  question: Jak określono relacje opiekunów i odpowiedzialność za dziecko?
+  severity: NON_BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-001
+  - BR-014
+  - BR-019
+  - CON-006
+  status: RESOLVED
+  resolution:
+    answer: Aktualne wymagania obejmują wielu uprawnionych opiekunów, odpowiedzialność
+      dorosłego za zakup i zgody oraz oświadczenie pełnoletności, uprawnienia i prawdziwości
+      informacji. Szczegółowy cykl relacji i odzyskiwania dostępu z rewizji 5 zachowano
+      historycznie, bez ustanowienia go aktualną decyzją; pozostaje doprecyzowanie
+      Q-017. Kwestie prawne pozostają Q-007.
+    evidence: 'SRC-PLAN §3 Opiekun, Dziecko / uczestnik, §15, §28; SRC-AGENTS §21
+      Parent responsibility. Historyczna odpowiedź i jej pierwotny dowód: SRC-PRIOR
+      Q-003 / resolution.'
+- id: Q-004
+  question: Jakie są aktualne reguły rezerwacji, potwierdzenia udziału i zwrotów?
+  severity: NON_BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-004
+  - BR-005
+  - BR-018
+  - CON-006
+  status: RESOLVED
+  resolution:
+    answer: Nieopłacona rezerwacja może trwać maksymalnie 24 godziny, a skuteczna
+      płatność potwierdza udział. Zwrot po niezaakceptowanym pogorszeniu warunków
+      obejmuje niezrealizowaną część, a całość gdy usługa nie rozpoczęła się i nie
+      może zostać zrealizowana na zakupionych warunkach. Nie przyjęto historycznej
+      dokładnej rezerwacji 24 godzin ani dawnych wariantów późnej płatności jako nowych
+      decyzji; szczegóły pozostają Q-017, finalne warunki prawne Q-008.
+    evidence: 'SRC-PLAN §§6, 14, 21, 28. Historyczna odpowiedź z wariantami późnej
+      płatności: SRC-PRIOR Q-004 / resolution; BR-004.'
+- id: Q-005
+  question: Czy zaliczenie jest globalnym warunkiem progresji i kto przyznaje wyjątek?
+  severity: BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-005
+  - BR-009
+  - BR-017
+  - RULE-002
+  - ACT-004
+  status: RESOLVED
+  resolution:
+    answer: Nie ma globalnej blokady. Wyjątek może przyznać przypisany do prowadzenia
+      nauczyciel bez wymogu autorstwa, uprawniony administrator lub właściciel. Sama
+      rola metodyka nie uprawnia do wyjątku; wymagany jest audyt osoby, uczestnika,
+      programu lub etapu, czasu i uzasadnienia.
+    evidence: 'SRC-PLAN §8, §27. Historyczna odpowiedź obejmująca niepotwierdzony
+      wymóg własności programu: SRC-PRIOR Q-005 / resolution; aktualna decyzja zastępuje
+      ten szczegół.'
+- id: Q-006
+  question: Jakie są aktualne limity i czas odpowiedzi konsultacji?
+  severity: BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-013
+  - PROC-003
+  - RULE-007
+  status: RESOLVED
+  resolution:
+    answer: Uczestnik aktywnego programu może rozpocząć jeden nowy wątek tygodniowo,
+      poniedziałek–niedziela Europe/Warsaw. Limit nie przechodzi dalej, odpowiedzi
+      go nie zużywają, a docelowa odpowiedź następuje do dwóch dni roboczych. Szczegóły
+      wspólnego limitu opiekunów, kalendarza i zamykania z rewizji 5 zachowano historycznie;
+      bez aktualnego potwierdzenia pozostają Q-017.
+    evidence: 'SRC-PLAN §12, §28; SRC-AGENTS §21 Consultations. Historyczna odpowiedź
+      i dowód: SRC-PRIOR Q-006 / resolution.'
+- id: Q-007
+  question: Jakie finalne dane, podstawy, zgody, retencja, prawa osób i wymagania
+    wobec procesorów zostaną zatwierdzone? NON_BLOCKER dla SA, ponieważ plan §21 i
+    §28 jawnie odracza finalne kwestie prawne i retencyjne do produkcji; brakujące
+    wartości nie zastępują wymagań minimalizacji i kontrolowanego dostępu.
+  severity: NON_BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-001
+  - BR-013
+  - BR-015
+  - BR-019
+  - CON-006
+  status: OPEN
+  resolution: null
+- id: Q-008
+  question: Jakie VAT, dokumenty sprzedaży, odstąpienia i finalne warunki reklamacji
+    oraz zwrotów zostaną zatwierdzone? NON_BLOCKER dla SA, ponieważ plan §6, §14 i
+    §21 ustanawia przegląd przed sprzedażą produkcyjną; PLN i biznesowa zasada zwrotu
+    są już rozstrzygnięte.
+  severity: NON_BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-004
+  - BR-018
+  - CON-006
+  status: OPEN
+  resolution: null
+- id: Q-009
+  question: Jakie szczegółowe procedury reklamacji, ręcznej oceny i administracji
+    zostaną przyjęte oraz czy otrzymają dodatkowe SLA? NON_BLOCKER dla SA, ponieważ
+    §10 nie ustanawia dodatkowego globalnego SLA, a §21 i Załącznik B odraczają finalne
+    procedury do produkcji. Nie należy wprowadzać przykładowego czasu oceny jako globalnej
+    wartości.
+  severity: NON_BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-007
+  - BR-010
+  - BR-016
+  - BR-021
+  - CON-006
+  status: OPEN
+  resolution: null
+- id: Q-010
+  question: Jakie szczegółowe kontrole nauczycieli, dokumenty, funkcje i procedury
+    ochrony małoletnich będą zatwierdzone? NON_BLOCKER dla SA, ponieważ §15 i §21
+    jawnie ustanawiają bramkę prawną i organizacyjną przed produkcją; podstawowe wymagania
+    przygotowania nauczyciela i kontrolowanej komunikacji są już określone.
+  severity: NON_BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-020
+  - BR-022
+  - CON-006
+  status: OPEN
+  resolution: null
+- id: Q-011
+  question: Jakie są aktualne cele skali, dostępności i odtworzenia?
+  severity: BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-025
+  - BR-026
+  - GOAL-003
+  status: RESOLVED
+  resolution:
+    answer: Początkowo co najmniej 100 aktywnych rodzin i 10 równoczesnych zajęć;
+      kierunek rozwoju około 10 000 rodzin i 200 zajęć bez fundamentalnej przebudowy
+      domeny. Dostępność 99,5% miesięcznie, RPO do 24 godzin i RTO do czterech godzin.
+      Aktualne co najmniej i około zastępują historyczne do i co najmniej w odpowiednich
+      granicach skali.
+    evidence: 'SRC-PLAN §§18–19. Historyczna odpowiedź i wcześniejsze granice: SRC-PRIOR
+      Q-011 / resolution; BR-025.'
+- id: Q-012
+  question: Jakie marża, budżet i kryteria ekonomicznej oceny pilota zostaną ustalone?
+    NON_BLOCKER dla SA, ponieważ plan §24 i §26 traktuje ekonomikę jako walidację
+    pilota, a nie brakującą globalną regułę produktu. KPI edukacyjne i kontynuacji
+    mają aktualne definicje w §11 i §17; BA nie nadaje historycznym cenom ani marżom
+    mocy decyzji.
+  severity: NON_BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-024
+  - GOAL-002
+  - ASM-001
+  status: OPEN
+  resolution: null
+- id: Q-013
+  question: Czy kolejne poprawki mogą być płatne?
+  severity: BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-011
+  - RULE-004
+  - CON-002
+  status: RESOLVED
+  resolution:
+    answer: Nie. Wszystkie poprawki i kolejne próby zaliczenia są bezpłatne; opłata
+      100 PLN netto i poprawki jako źródło przychodu są wycofane.
+    evidence: 'SRC-PLAN §9, §25, Załącznik C; SRC-AGENTS §21 Retakes. Historia odpowiedzi:
+      SRC-PRIOR Q-013 / resolution.'
+- id: Q-014
+  question: Jakie są granice pomiaru ciągłości i jednostki pomiaru skali?
+  severity: BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-025
+  - BR-026
+  - TERM-011
+  - TERM-012
+  status: RESOLVED
+  resolution:
+    answer: Zakres funkcji i warunki pomiaru dostępności określa aktualny §19, w tym
+      wyłączenie zapowiedzianego serwisu po informacji 24 godziny wcześniej oraz odrębność
+      awarii zewnętrznej wideokonferencji. Szczegółowa metoda pomiaru należy do dalszej
+      analizy. Historyczne definicje aktywnej rodziny, jednostki zajęć i początku
+      pomiaru RTO zachowano w SRC-PRIOR; aktualny plan nie potwierdza ich w całości,
+      więc doprecyzowanie jest NON_BLOCKER Q-017, bez odtwarzania dawnego blokera.
+    evidence: 'SRC-PLAN §§18–19, §27. Historyczne definicje i dowód: SRC-PRIOR Q-014
+      / resolution; TERM-011; TERM-012; BR-026.'
+- id: Q-015
+  question: Czy wymagane jest odzyskanie historycznych plików jako dowodu dawnych
+    odpowiedzi?
+  severity: BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-001
+  - BR-004
+  - BR-005
+  - BR-013
+  - BR-024
+  - BR-025
+  - BR-026
+  - CON-007
+  status: RESOLVED
+  resolution:
+    answer: Nie. Aktualny kanoniczny plan rozstrzyga opisane tematy i zastępuje sprzeczne
+      wcześniejsze odpowiedzi. Rewizja 5 zamknęła Q-015 na podstawie ówczesnego potwierdzenia
+      właściciela; jego odpowiedź i digest zachowano historycznie. Ani dawne potwierdzenie,
+      ani obecny plan nie zatwierdzają dokładnych bajtów BA.
+    evidence: 'SRC-PLAN §1, §§27–28; historyczne zamknięcie i pierwotny dowód: SRC-PRIOR
+      Q-015 / resolution.'
+- id: Q-016
+  question: Czy brak historycznej sekcji aktualizacji pozostawia niepokryte decyzje
+    o uprawnieniach, PLN, KPI, ciągłości, zmianach usługi i bezpieczeństwie?
+  severity: BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - ACT-003
+  - ACT-004
+  - BR-001
+  - BR-005
+  - BR-009
+  - BR-016
+  - BR-018
+  - BR-020
+  - BR-021
+  - BR-024
+  - BR-026
+  - RULE-005
+  - CON-007
+  status: RESOLVED
+  resolution:
+    answer: Właściciel jawnie zamknął Q-016. Aktualny plan rozstrzyga przypisanie
+      nauczyciela bez autorstwa, brak wyjątku metodyka z samej roli, PLN, kwalifikację
+      i okno kontynuacji, ukończenie bez egzaminu, frekwencję, ankietę, zakres dostępności,
+      proporcjonalny lub pełny zwrot, weryfikację niesamodzielności, powiadomienia,
+      oświadczenie opiekuna i przygotowanie nauczyciela. Sprzeczne wcześniejsze szczegóły
+      są zastąpione, a odzyskiwanie historycznej sekcji nie jest wymagane.
+    evidence: 'SRC-PLAN sha256:e70087992066d72c922a86bb3f14f1f9ccacba280f57f6e40ea982c6848c313c,
+      §27 Zamknięcie Q-016; §§6–11, 14–19; §28. Poprzednie otwarte pytanie: SRC-PRIOR
+      Q-016.'
+- id: Q-017
+  question: 'Jak doprecyzować cykl dodawania i odebrania dostępu opiekunom oraz odzyskiwanie
+    dostępu, obsługę płatności po wygaśnięciu rezerwacji, wspólny limit wątków uczestnika
+    i opiekunów, kalendarz dni roboczych i zamknięcie konsultacji, jednostkę aktywnej
+    rodziny i równoczesnych zajęć oraz granice pomiaru RPO/RTO? NON_BLOCKER dla przejścia
+    do SA: aktualne źródło podaje cele, odpowiedzialność, zakres dostępu i limity
+    wystarczające do analizy, a §19 jawnie deleguje metodę pomiaru dalej. Szczegóły
+    można ustalić w odpowiednim zakresie SA lub przed wdrożeniem procesów, bez wyboru
+    domyślnych wartości i bez kwestionowania zamknięcia Q-016. Historia rewizji 5
+    pozostaje materiałem do rozpatrzenia przez właściciela, nie aktualną automatycznie
+    obowiązującą odpowiedzią.'
+  severity: NON_BLOCKER
+  owner: Michał Wanielista
+  affected_refs:
+  - BR-001
+  - BR-004
+  - BR-013
+  - BR-025
+  - BR-026
+  - TERM-011
+  - TERM-012
+  status: OPEN
+  resolution: null
+section_notes:
+  Changed: Zaproponowano revision 6 zamiast revision 5 BLOCKED, approval null, snapshot
+    sha256:79a6daa30416d4f052f93a4f5e01d6057c8c57d27252a17d6922af60f7ad44dc. Wprowadzono
+    kanoniczny plan 2.0, zamknięto Q-016 i usunięto nieaktualne lokatory poprzedniego
+    planu. Zmieniono dokładne 24 godziny rezerwacji na maksimum 24, dawny pełny zwrot
+    po każdej zmianie na regułę z §14, frekwencję na agregację ważoną obecnościami,
+    definicje kontynuacji i ankiety, zakres dostępności oraz granice skali. Dodano
+    wymagania oświadczenia, szkoleń i weryfikacji niesamodzielności. Zachowano BR-001–BR-026
+    oraz istniejące ID innych sekcji; ASM-002 pozostaje wycofany i nie został użyty
+    ponownie. Odpowiedzi i pierwotne dowody historyczne pozostają w dokładnym snapshot
+    SRC-PRIOR; aktualna propozycja jawnie opisuje zastąpione zakresy. Zarezerwowany
+    przez kontrolera writer business-analyst, worktree /Users/mwanielista/git/eszkola,
+    path docs/requirements/business-analysis.yaml. Zwrócono propozycję bez zapisu
+    i bez zmiany stanu kontrolera.
+  Verification: Odczytano status Git, branch feature/create-ba-bs i worktree list,
+    AGENTS, workflow, kontrakt, rolę, istniejącą BA, aktualny plan, szablon oraz baseline.
+    Porównano zmieniony plan z Git i bieżącym zakresem BA. Trzy SHA-256 źródeł są
+    zgodne z kontekstem kontrolera. Powtórny odczyt SHA-256 wszystkich ośmiu konsumowanych
+    plików potwierdził brak zmian, w tym identyczność output snapshot. Ręcznie sprawdzono
+    obecność pól, unikalność i stabilność ID, 26 BR z opisem, rationale, priority,
+    niepustymi kryteriami i precyzyjnymi source_refs, actor_refs procesów, affected_refs
+    pytań, źródła odpowiedzi oraz zgodność statusu z brakiem otwartych BLOCKER. Git
+    zwracał wyniki mimo odmowy zapisu cache xcrun. Nie wykonano zapisów ani zmian
+    w zastanych plikach innych użytkowników. Nie uruchomiono walidatora BA/SA ani
+    walidatora architektury.
+  source_coverage: Plan §§1–3 określa autorytet, cele i role; §§4–5 program i wersję;
+    §§6–9 handel, ukończenie, progresję i ocenianie; §§10–14 operacje, frekwencję,
+    konsultacje, postęp i zmiany warunków; §§15–16 ochronę dzieci i MVP; §§17–20 KPI,
+    skalę, ciągłość, powiadomienia i audyt. §21 i Załącznik B określają bramki gotowości;
+    §22 nie jest wyborem technologii przez BA ani zezwoleniem na wybór stosu przez
+    SA. §§23–26 rozdzielają wyłączenia, hipotezy, przychody i walidację. §§27–28 zamykają
+    historyczny blocker bez aprobaty artefaktu. Załącznik A wspiera konfigurowalne
+    parametry, C identyfikuje wycofane reguły. Część A szablonu wspiera jakość edukacji;
+    stałe cztery lekcje, obowiązkowy egzamin i płatne poprawki są zastąpione aktualnym
+    planem. Część B, imiona, podpisy, czasy, progi i ceny są ilustracyjne. AGENTS
+    uzupełnia obowiązujące MVP, zasady zasobowego dostępu, historii ocen, czasu, bezpieczeństwa
+    i dostępności. Baseline i SRC-PRIOR są kontekstem historycznym, bez nadania aprobaty
+    lub nowych powiązań SR–BR. Wszystkie wymagane sekcje są niepuste.
+  Architecture_impact: Nie zmieniono system requirements, architektury, Accepted ADR,
+    SR ani aplikacji. Konfigurowalne ukończenie, bezpłatne próby, przypisane uprawnienia
+    nauczyciela, zakupione warunki, KPI i zakres dostępności wymagają downstream impact
+    review po aprobacie revision 6. Szczególnie SR-03, SR-04 i SR-05 pozostają historycznym
+    zakresem wymagającym oceny zgodności; BA ich nie zmienia i nie tworzy nowych linków.
+    Zmiana rewizji unieważnia gotowość zależnych artefaktów do czasu przeglądu wpływu.
+  Not_verified: Nie wykonano automatycznego parsowania końcowej propozycji YAML ani
+    wykonawczej walidacji BA/SA. Ręczne sprawdzenie nie dowodzi kompletnej poprawności
+    semantycznej. Nie przeprowadzono przeglądu prawnego, podatkowego, DPIA, testów
+    aplikacji, KPI w pilocie, dostępności lub odtworzenia. Nie zweryfikowano niewidocznych
+    sesji ani nie udzielono aprobaty. approved_ba_evidence jest null, więc nie istnieje
+    dostarczony zewnętrzny dowód wiążący dokładny digest tej rewizji. SRC-PRIOR wskazuje
+    istniejący snapshot; jego historyczne odpowiedzi nie wymagają odzyskania starszych
+    źródeł i nie są traktowane jako aktualne decyzje. Kontroler powinien zachować
+    ten snapshot i ponownie porównać wejścia oraz wyjście przed własnym zapisem. Rezerwacja
+    nie jest blokadą filesystem ani została zwolniona przez tę propozycję.
+  handoff_gate: 'FAIL dla SA: revision 6 jest READY_FOR_REVIEW, approval null i brak
+    external exact-content approval Michała Wanielisty. Ręczna bramka jakości BA przechodzi:
+    brak otwartych BLOCKER, Q-016 RESOLVED na podstawie aktualnego źródła. Otwarte
+    NON_BLOCKER: Q-007, Q-008, Q-009, Q-010, Q-012 i Q-017, każde z uzasadnieniem
+    i zakresem. READY_FOR_REVIEW nie jest APPROVED. Nie uruchomiono SA, architektury
+    ani innego etapu; zakończono wyłącznie analizę BA.'

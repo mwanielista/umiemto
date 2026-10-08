@@ -1,22 +1,30 @@
 # Architecture constraints and fitness functions
 
-[model.json](model.json) is a target dependency allowlist and logical ownership registry, not evidence of source compliance. [AGENTS.md](../../AGENTS.md) supplies repository rules; the following connects baseline decisions to checks.
+[model.json](model.json) is a target public-import allowlist and single-owner registry, not implementation evidence. Retain Accepted boundaries from ADRs 0001–0005 and 0007. [ADR-0008](decisions/0008-approved-requirement-impact.md) identifies Proposed additions and partial retake supersession. Validation code is excluded from this stage's reservation.
 
-| Constraint | Baseline check available | Required implementation fitness function |
+| Constraint / trace | Structural evidence now | Required downstream fitness function |
 | --- | --- | --- |
-| Unique module/entity IDs, known edges, acyclic imports, no self-dependency | `validation/check_baseline.py` + negative self-tests | Compile-time/ArchUnit module graph compared with allowlist |
-| Exactly one owner per logical persistent entity; workflows owns no business persistence | JSON ownership check | Owner-prefixed migrations; no foreign persistence access; review entity-to-table registry |
-| Only `.api` crosses modules; no provider/ORM models in public/domain contracts | Specified in model/package convention only | ArchUnit detects forbidden foreign private/package dependencies; DTO/schema contract checks |
-| Domain independent of HTTP/ORM/providers; controllers delegate business coordination | Not provable without source | Compiled layer dependency rules plus focused code review |
-| Defined ADR status/sections and local documentation links | Python document consistency check | ADR impact and architecture review for significant changes |
-| Role + resource authority, privileged MFA and transactional audit | Documented only | Actor/resource negative integration tests; audit rollback and assurance checks |
-| Immutable content/attempt history and final-only progression | Documented only | Version/edit/correction tests and concurrent activation/grade tests |
-| Verified, deduplicated payments and durable local effects | Documented only | Real PostgreSQL callback/fulfillment crash/retry/concurrency tests + provider sandbox |
-| Migration, money, time and private-file invariants | Documented only | Empty/upgrade database tests; decimal/currency, Warsaw DST and quarantine/access checks |
-| Deployable config, compatible tooling, protected exposure and recovery | Existing landing Compose config command | New config/build/readiness/proxy/TLS checks and isolated backup restore rehearsal |
+| Unique owners/modules, known acyclic edges, no workflow data; ADR-0001/0002 | Both unchanged checkout checks pass; self-test rejects six invalid models | Compiled graph vs allowlist; owner-prefixed migration/entity registry; reject foreign persistence |
+| Only public api crosses modules; no ORM/provider/HTTP in domain/DTOs; ADR-0001 | Package convention in model | ArchUnit public/private/layer/import rules and DTO/schema compatibility |
+| Reporting reads commerce via public queries, never source SQL/writes; FR-024 | Candidate allows reporting → commerce with no reverse edge | Architecture rule and scoped reporting contract tests with fake owner APIs |
+| Free attempts never need commerce/order/payment; FR-011 | Candidate has no RetakeEntitlement and no assessments → commerce edge | Attempt creation with no commerce interaction; every configured retake remains free and eligibility/versioned ordinal is serialized |
+| Configurable completion/progression; FR-005/FR-009/FR-010/FR-017 | Owner/contracts documented | No-exam required-element completion, no-prerequisite start, final-only gate, authorized exception and immutable-history tests |
+| Role plus active resource, guardian lifecycle, MFA and audit; FR-001/FR-014/FR-015/NFR-001 | Documented authority/owner boundaries | ID substitution/revocation tests, main-guardian/invitation races, child/adult separation, recovery self-approval denial, audit-failure rollback |
+| Verified/deduplicated payments, capacity and refunds; FR-004/FR-018/NFR-002 | Stable identity and transaction contracts documented | Real PostgreSQL callback/last-seat/late-payment/parallel-refund tests; crashes, pending balance and uncertain-provider reconciliation |
+| Shared weekly quota; FR-013/NFR-009 | ConsultationWeekUsage has one owner | Parallel child/guardian creation accepts one slot, replies/carryover/week/DST/holiday tests |
+| Attachment quarantine and safe math; FR-007/FR-023/NFR-007 | Candidate owner/type/count/size contracts | Type spoofing, 20 MB boundary, five-file limit, DOCX vs generic archive, scan outage and unauthorized access; bounded server evaluation/no key leakage |
+| Versioned KPI cohorts and dedup; FR-024 | Reporting owns qualification/survey/snapshot; source facts remain with owners | Missing continuation, repeated availability, 60th-day Warsaw boundary, rescheduled attendance, survey/main-change and zero-denominator tests |
+| Durable bounded retries and redacted diagnostics; NFR-008/NFR-010 | Owner delivery contracts and stated pending SA-Q-009 | Restart/lease/key/retry exhaustion tests; no unsafe automatic replay; fault-injected alerts and diagnostics/audit retention separation |
+| Measurable operations; NFR-003–NFR-006 | Approved targets documented | Process availability report, ≥100-family/10-lesson load, p95/p99/errors, full DB/object restore and manual/automated accessibility review |
 
-## Checker scope
+## Scope and limits
 
-Run `python3 docs/architecture/validation/check_baseline.py`; use `--self-test` to additionally prove representative invalid models are rejected. The standard-library checker parses the model, validates its specific structure/invariants and checks Markdown file links/ADR headings. It has no application dependencies and starts nothing.
+The exact BA/SA input gate passes with both mandatory controller approval identities and local external evidence. Both unchanged configured architecture checker variants pass against the actual checkout, exit 0. They report 13 modules, unique ownership, a valid DAG, valid ADR structure/status and existing local Markdown destinations; all six negative model cases are rejected.
 
-It does not validate physical SQL, inspect Java/TypeScript imports, certify security, compare full source behavior, render Mermaid or replace an independent review. Those gaps are intentional and must be closed during actual implementation. Do not report a target model passing as an implementation test passing.
+Accepted ADRs 0001–0005 and 0007 and validation/check_baseline.py are present and byte-for-byte equal to HEAD f94029b1486721893a4258ae07e6885272d06357. Proposed ADR-0006 and principles.md also match HEAD. Earlier absence/exit-2/missing-link descriptions are historical. Exact input, output and protected-file identities are recorded in the [handoff](implementation-handoff.md).
+
+Historical ARCH-001's recovery and executable-check preconditions are now supported by actual checkout evidence. This stage has no newly supplied review_findings object and issues no finding closure or review approval. It returns documentation proposals within the current architect reservation, including a factual execution-status update to architecture_decisions.md that preserves the coordinator's selections. No Accepted ADR or validator proposal is needed.
+
+Controller promotion requires fresh upstream/output comparisons, a complete resulting architecture snapshot and baseline-relative diff including dirty/untracked content, rechecked exact external BA/SA approvals and lineage, independent read-only review and both unchanged checks on the resulting checkout. Passing structural validation is not architecture adoption. ADR-0006/0008 remain Proposed.
+
+The unchanged checker validates model uniqueness/DAG, distinct delivery concepts, ADR structure/status, ownership-table alignment and local Markdown destinations. It does not prove link fragments, physical SQL, compiled Java/TypeScript, provider/API behavior, Mermaid rendering, numeric objectives, source semantics or security. Meaningful implementation checks remain with downstream owners.
